@@ -1,26 +1,24 @@
 import {
-  IsString,
   IsEmail,
   IsNotEmpty,
-  IsOptional,
-  IsBoolean,
-  IsIn,
+  IsString,
   MinLength,
+  IsOptional,
   IsUrl,
-  IsDateString,
+  IsIn,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class RegisterDto {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Name is required' })
   name: string;
 
-  @IsEmail()
-  @IsNotEmpty()
+  @IsEmail({}, { message: 'Invalid email format' })
+  @IsNotEmpty({ message: 'Email is required' })
   email: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Password is required' })
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password: string;
 
@@ -42,23 +40,4 @@ export class CreateUserDto {
     message: 'account_type must be local, google or facebook',
   })
   account_type?: string;
-
-  @IsString()
-  @IsOptional()
-  @IsIn(['user', 'admin', 'moderator'], {
-    message: 'role must be user, admin or moderator',
-  })
-  role?: string;
-
-  @IsBoolean()
-  @IsOptional()
-  is_active?: boolean;
-
-  @IsString()
-  @IsOptional()
-  code_id?: string;
-
-  @IsDateString()
-  @IsOptional()
-  code_expired?: Date;
 }
