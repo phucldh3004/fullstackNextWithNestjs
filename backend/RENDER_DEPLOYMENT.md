@@ -42,7 +42,7 @@ git push origin main
    - **Runtime**: `Node`
    - **Build Command**: 
      ```bash
-     npm install && npm run build
+     npm install --production=false && npm run build
      ```
    - **Start Command**:
      ```bash
@@ -171,11 +171,15 @@ curl https://your-app-name.onrender.com/health
 
 **Giải pháp**:
 ```bash
-# Build command phải là:
-npm install && npm run build
+# Build command phải là (cài cả devDependencies):
+npm install --production=false && npm run build
 
-# KHÔNG dùng:
+# Hoặc update package.json build script:
+"build": "npx nest build"
+
+# KHÔNG dùng (sẽ skip devDependencies):
 npm ci && npm run build
+npm install && npm run build  # trong production mode
 ```
 
 ### Lỗi: "Cannot connect to MongoDB"
