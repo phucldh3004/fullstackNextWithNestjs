@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { comparePasswordHelper } from '@/helpers/util';
+import { comparePasswordHelper } from '../helpers/util';
 import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
