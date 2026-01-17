@@ -51,7 +51,7 @@ export default function RegisterPage() {
       if (formData.address) requestBody.address = formData.address
       if (formData.image) requestBody.image = formData.image
 
-      const response = await fetch("http://localhost:3001/auth/register", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

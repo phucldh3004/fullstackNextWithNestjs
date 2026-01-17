@@ -1,0 +1,38 @@
+# Render.com Blueprint Configuration
+# This file defines the infrastructure for deploying on Render.com
+# Upload this file to your repository root and connect it to Render
+
+services:
+  # NestJS Backend Service
+  - type: web
+    name: nestjs-backend
+    env: node
+    region: singapore
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: MONGODB_URI_USER
+        sync: false
+      - key: MONGODB_URI_APP
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: FRONTEND_URL
+        sync: false
+    autoDeploy: true
+
+databases:
+  # MongoDB Database
+  - name: mongodb
+    databaseName: fullstackjs_db
+    user: admin
+    plan: starter
+
