@@ -5,6 +5,7 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { proxy } from './lib/proxy';
 
 // Public routes that don't require authentication
 const PUBLIC_ROUTES = [
@@ -20,6 +21,11 @@ const PUBLIC_FILE_REGEX = /\.(.*)$/;
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Apply proxy for API routes
+  if (pathname.startsWith('/api/')) {
+    return proxy(request);
+  }
 
   // Allow public files
   if (PUBLIC_FILE_REGEX.test(pathname)) {

@@ -6,14 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS for frontend
-  app.enableCors({
-    origin:
-      process.env.NODE_ENV === 'production'
-        ? 'https://fullstack-next-with-nestjs.vercel.app/'
-        : 'http://localhost:3000',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  });
+  app.enableCors();
 
   // Enable validation globally
   app.useGlobalPipes(

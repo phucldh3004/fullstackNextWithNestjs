@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import axios from 'axios';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -9,24 +10,12 @@ export async function POST(request: NextRequest) {
     const { username, password } = body;
 
     // Call backend API
-    const response = await fetch(`${BACKEND_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
+    const response = await axios.post(`${BACKEND_URL}/auth/login`, {
+      username,
+      password,
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      return NextResponse.json(
-        { message: error.message || 'Login failed' },
-        { status: response.status }
-      );
-    }
-
-    const data = await response.json();
-    const { access_token } = data;
+    const { access_token } = response.data;
 
     // Set access_token in HTTP-only cookie (secure)
     const cookieStore = await cookies();
@@ -42,8 +31,13 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Login successful',
     });
-
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response) {
+      return NextResponse.json(
+        { message: error.response.data?.message || 'Login failed' },
+        { status: error.response.status }
+      );
+    }
     console.error('Login error:', error);
     return NextResponse.json(
       { message: 'Internal server error' },

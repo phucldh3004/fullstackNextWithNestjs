@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import axios from 'axios';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -8,40 +9,17 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Call backend API
-    const response = await fetch(`${BACKEND_URL}/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      return NextResponse.json(
-        { message: error.message || 'Registration failed' },
-        { status: response.status }
-      );
-    }
-
-    const data = await response.json();
+    const response = await axios.post(`${BACKEND_URL}/auth/register`, body);
+    const data = response.data;
 
     // Auto-login after registration
     // Call login to get access token
-    const loginResponse = await fetch(`${BACKEND_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    try {
+      const loginResponse = await axios.post(`${BACKEND_URL}/auth/login`, {
         username: body.email,
         password: body.password,
-      }),
-    });
-
-    if (loginResponse.ok) {
-      const loginData = await loginResponse.json();
-      const { access_token } = loginData;
+      });
+      const { access_token } = loginResponse.data;
 
       // Set access_token in HTTP-only cookie
       const cookieStore = await cookies();
@@ -52,6 +30,9 @@ export async function POST(request: NextRequest) {
         maxAge: 60 * 60 * 24 * 7, // 7 days
         path: '/',
       });
+    } catch (loginError) {
+      // Login failed but registration succeeded
+      console.error('Auto-login error:', loginError);
     }
 
     return NextResponse.json({ 
@@ -59,8 +40,13 @@ export async function POST(request: NextRequest) {
       message: 'Registration successful',
       user: data.user,
     });
-
-  } catch (error) {
+  } catch (error: any) {
+    if (error.response) {
+      return NextResponse.json(
+        { message: error.response.data?.message || 'Registration failed' },
+        { status: error.response.status }
+      );
+    }
     console.error('Registration error:', error);
     return NextResponse.json(
       { message: 'Internal server error' },

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { api } from '@/lib/axios';
 
 export default function LogoutButton() {
   const router = useRouter();
@@ -15,17 +16,10 @@ export default function LogoutButton() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-      });
-
-      if (response.ok) {
-        // Redirect to login page
-        router.push('/login');
-        router.refresh();
-      } else {
-        alert('Đăng xuất thất bại');
-      }
+      await api.post('/auth/logout');
+      // Redirect to login page
+      router.push('/login');
+      router.refresh();
     } catch (error) {
       console.error('Logout error:', error);
       alert('Có lỗi xảy ra khi đăng xuất');

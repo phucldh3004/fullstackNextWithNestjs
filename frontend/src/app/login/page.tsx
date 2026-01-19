@@ -3,6 +3,7 @@
 import { useState, FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { api } from "@/lib/axios"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -20,22 +21,10 @@ export default function LoginPage() {
 
     try {
       // Call Next.js API route (will set cookie on server-side)
-      const response = await fetch('/api/auth/login', {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password
-        })
+      await api.post('/auth/login', {
+        username: formData.username,
+        password: formData.password
       })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Đăng nhập thất bại")
-      }
 
       // Token is now stored in HTTP-only cookie (more secure)
       // No need to store in localStorage anymore

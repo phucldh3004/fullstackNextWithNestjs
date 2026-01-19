@@ -30,8 +30,9 @@ export async function getAccessToken(): Promise<string | null> {
  */
 export async function checkAuthClient(): Promise<boolean> {
   try {
-    const response = await fetch('/api/auth/check');
-    return response.ok;
+    const { api } = await import('./axios');
+    await api.get('/auth/check');
+    return true;
   } catch {
     return false;
   }
@@ -41,54 +42,35 @@ export async function checkAuthClient(): Promise<boolean> {
  * Login (Client-side)
  */
 export async function login(username: string, password: string) {
-  const response = await fetch('/api/auth/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ username, password }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Login failed');
+  const { api } = await import('./axios');
+  try {
+    return await api.post('/auth/login', { username, password });
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || error.message || 'Login failed');
   }
-
-  return response.json();
 }
 
 /**
  * Logout (Client-side)
  */
 export async function logout() {
-  const response = await fetch('/api/auth/logout', {
-    method: 'POST',
-  });
-
-  if (!response.ok) {
-    throw new Error('Logout failed');
+  const { api } = await import('./axios');
+  try {
+    return await api.post('/auth/logout');
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || error.message || 'Logout failed');
   }
-
-  return response.json();
 }
 
 /**
  * Register (Client-side)
  */
 export async function register(data: any) {
-  const response = await fetch('/api/auth/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Registration failed');
+  const { api } = await import('./axios');
+  try {
+    return await api.post('/auth/register', data);
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || error.message || 'Registration failed');
   }
-
-  return response.json();
 }
 
