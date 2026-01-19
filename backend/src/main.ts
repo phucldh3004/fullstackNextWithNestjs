@@ -9,7 +9,7 @@ async function bootstrap() {
   app.enableCors({
     origin:
       process.env.NODE_ENV === 'production'
-        ? 'https://fullstack-next-with-nestjs-kkz9s9qvp.vercel.app/'
+        ? 'https://fullstack-next-with-nestjs.vercel.app/'
         : 'http://localhost:3000',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
