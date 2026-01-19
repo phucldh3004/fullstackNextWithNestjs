@@ -19,7 +19,8 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+      // Call Next.js API route (will set cookie on server-side)
+      const response = await fetch('/api/auth/login', {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -36,13 +37,16 @@ export default function LoginPage() {
         throw new Error(data.message || "Đăng nhập thất bại")
       }
 
-      // Lưu token vào localStorage
-      if (data.access_token) {
-        localStorage.setItem("access_token", data.access_token)
-      }
+      // Token is now stored in HTTP-only cookie (more secure)
+      // No need to store in localStorage anymore
 
-      // Chuyển hướng sau khi đăng nhập thành công
-      router.push("/")
+      // Check if there's a redirect query param
+      const searchParams = new URLSearchParams(window.location.search)
+      const redirectTo = searchParams.get('redirect') || '/'
+
+      // Redirect after successful login
+      router.push(redirectTo)
+      router.refresh() // Refresh to update middleware check
     } catch (err) {
       setError(err instanceof Error ? err.message : "Có lỗi xảy ra")
     } finally {
