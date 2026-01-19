@@ -7,11 +7,20 @@ async function bootstrap() {
 
   // Enable CORS for frontend - cho phép 2 origins
   app.enableCors({
-    origin: [
-     'https://fullstacknextwithnestjs.onrender.com',
-      'https://fullstack-next-with-nestjs.vercel.app', // Production Vercel
-      'http://localhost:3000', // Development
-    ],
+    // origin phải là domain FRONTEND (nơi browser chạy), ví dụ localhost/vercel.
+    // Dùng function để:
+    // - allow Postman/curl (origin undefined)
+    // - match chính xác origin của browser
+    origin: (origin, callback) => {
+      const allowed = new Set([
+        'http://localhost:3000',
+        'https://fullstack-next-with-nestjs.vercel.app',
+        'https://fullstacknextwithnestjs.onrender.com',
+      ]);
+
+      if (!origin) return callback(null, true); // Postman/curl
+      return callback(null, allowed.has(origin));
+    },
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     credentials: true, // Quan trọng nếu bạn dùng Cookie hoặc JWT trong Header
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],

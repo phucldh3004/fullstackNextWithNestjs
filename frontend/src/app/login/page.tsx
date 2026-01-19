@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { api } from "@/lib/axios"
 
+
+
 export default function LoginPage() {
   const router = useRouter()
   const [formData, setFormData] = useState({
@@ -24,7 +26,8 @@ export default function LoginPage() {
       const  reponsse = await api.post('/auth/login', {
         username: formData.username,
         password: formData.password
-      })
+      }) 
+     
       console.log('reponsse', reponsse);
 
       // Token is now stored in HTTP-only cookie (more secure)

@@ -6,7 +6,9 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError } from 'axios';
 // Note: CORS configuration is defined in ./proxy.ts
 // CORS headers are handled by proxy middleware in middleware.ts
-// Axios uses withCredentials: true to send cookies with requests
+// IMPORTANT:
+// - Không set `Access-Control-Allow-*` trong request (đó là response headers do server trả về)
+// - Chỉ bật withCredentials nếu backend dùng cookie auth cross-site
 
 // Get base API URL
 const getBaseUrl = () => {
@@ -18,10 +20,9 @@ const axiosInstance: AxiosInstance = axios.create({
   baseURL: getBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   },
-  withCredentials: true, // Important for cookies
+  // Nếu backend KHÔNG dùng cookie (trả token trong JSON) thì để false để tránh CORS credential rules
+  withCredentials: false,
 });
 
 // Request interceptor

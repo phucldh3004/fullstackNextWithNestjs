@@ -2,15 +2,24 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Proxy API requests to backend
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: '/api/:path*',
+  //       destination: process.env.NEXT_PUBLIC_API_URL 
+  //         ? `${process.env.NEXT_PUBLIC_API_URL}/:path*`
+  //         : 'http://localhost:3001/:path*', // Fallback to local backend
+  //     },
+  //   ];
+  // },
+
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: process.env.NEXT_PUBLIC_API_URL 
-          ? `${process.env.NEXT_PUBLIC_API_URL}/:path*`
-          : 'http://localhost:3001/:path*', // Fallback to local backend
+        destination: 'https://fullstacknextwithnestjs.onrender.com/:path*',
       },
-    ];
+    ]
   },
 
   // Optional: Handle CORS in development

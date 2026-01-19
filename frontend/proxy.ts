@@ -11,7 +11,7 @@ export function proxy(request: NextRequest) {
   // Check the origin from the request
   const origin = request.headers.get('origin') ?? ''
   const isAllowedOrigin = allowedOrigins.includes(origin)
- 
+ console.log('origin 22222', origin);
   // Handle preflighted requests
   const isPreflight = request.method === 'OPTIONS'
  

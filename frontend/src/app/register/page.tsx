@@ -3,7 +3,6 @@
 import { useState, FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { api } from "@/lib/axios"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -52,7 +51,19 @@ export default function RegisterPage() {
       if (formData.address) requestBody.address = formData.address
       if (formData.image) requestBody.image = formData.image
 
-      await api.post('/auth/register', requestBody)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(requestBody)
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || "Đăng ký thất bại")
+      }
 
       // Show success message
       setSuccess(true)
