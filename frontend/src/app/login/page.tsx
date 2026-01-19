@@ -18,13 +18,14 @@ export default function LoginPage() {
     e.preventDefault()
     setError("")
     setIsLoading(true)
-
+    console.log('formData', formData);
     try {
       // Call Next.js API route (will set cookie on server-side)
-      await api.post('/auth/login', {
+      const  reponsse = await api.post('/auth/login', {
         username: formData.username,
         password: formData.password
       })
+      console.log('reponsse', reponsse);
 
       // Token is now stored in HTTP-only cookie (more secure)
       // No need to store in localStorage anymore
