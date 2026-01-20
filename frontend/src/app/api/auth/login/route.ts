@@ -32,11 +32,12 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Login successful',
     });
-  } catch (error: any) {
-    if (error.response) {
+  } catch (error: unknown) {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { data?: { message?: string }; status?: number } };
       return NextResponse.json(
-        { message: error.response.data?.message || 'Login failed' },
-        { status: error.response.status }
+        { message: axiosError.response?.data?.message || 'Login failed' },
+        { status: axiosError.response?.status || 500 }
       );
     }
     console.error('Login error:', error);

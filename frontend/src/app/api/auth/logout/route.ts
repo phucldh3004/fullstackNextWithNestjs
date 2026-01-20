@@ -1,31 +1,23 @@
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server'
 
 export async function POST() {
   try {
-    // Delete access_token cookie
-    const cookieStore = await cookies();
-    // Ensure deletion matches cookie options used when setting it (path, etc.)
-    cookieStore.delete('access_token');
-    cookieStore.delete({ name: 'access_token', path: '/' });
-    cookieStore.set({
-      name: 'access_token',
-      value: '',
-      path: '/',
+    // Clear the access_token cookie
+    const response = NextResponse.json({ message: 'Logged out successfully' })
+
+    response.cookies.set('access_token', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
       maxAge: 0,
-    });
+      path: '/'
+    })
 
-    return NextResponse.json({ 
-      success: true,
-      message: 'Logged out successfully',
-    });
-
-  } catch (error) {
-    console.error('Logout error:', error);
+    return response
+  } catch {
     return NextResponse.json(
-      { message: 'Logout failed' },
+      { message: 'Internal server error' },
       { status: 500 }
-    );
+    )
   }
 }
-

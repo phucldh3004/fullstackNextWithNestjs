@@ -6,17 +6,14 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
   Request,
 } from '@nestjs/common';
 import { MarketingService } from './marketing.service';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
 import { UpdateCampaignDto } from './dto/update-campaign.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt.guard';
-import { RolesGuard, Roles, UserRole } from '../auth/guards/roles.guard';
+import { Roles, UserRole } from '../auth/guards/roles.guard';
 
 @Controller('marketing')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class MarketingController {
   constructor(private readonly marketingService: MarketingService) {}
 

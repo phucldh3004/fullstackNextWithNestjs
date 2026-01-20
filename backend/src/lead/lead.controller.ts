@@ -6,17 +6,14 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
   Request,
 } from '@nestjs/common';
 import { LeadService } from './lead.service';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt.guard';
-import { RolesGuard, Roles, UserRole } from '../auth/guards/roles.guard';
+import { Roles, UserRole } from '../auth/guards/roles.guard';
 
 @Controller('leads')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class LeadController {
   constructor(private readonly leadService: LeadService) {}
 
