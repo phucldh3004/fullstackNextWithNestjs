@@ -3,47 +3,44 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { PrismaService } from '../database/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User, UserDocument } from './schemas/user.schema';
 import { hasPasswordHelper } from '../helpers/util';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectModel(User.name, 'usersConnection') // Chỉ định connection name
-    private userModel: Model<UserDocument>,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto) {
     console.log('➕ Creating user:', createUserDto);
 
     // Hash password before saving
     const hashedPassword = await hasPasswordHelper(createUserDto.password);
 
-    const createdUser = new this.userModel({
-      ...createUserDto,
-      password: hashedPassword,
+    const createdUser = await this.prisma.user.create({
+      data: {
+        ...createUserDto,
+        password: hashedPassword,
+      },
     });
-    const savedUser = await createdUser.save();
-    console.log('✅ User created:', savedUser);
-    return savedUser;
+    console.log('✅ User created:', createdUser);
+    return createdUser;
   }
 
-  async findAll(): Promise<User[]> {
-    const users = await this.userModel.find().exec();
+  async findAll() {
+    const users = await this.prisma.user.findMany();
     console.log('👥 Found users:', users.length);
     console.log(users);
     return users;
   }
 
-  async findOne(id: string): Promise<User | null> {
+  async findOne(id: string) {
     console.log('🔍 Finding user by ID:', id);
 
-    const objectId = new Types.ObjectId(id);
-    const user = await this.userModel.findById(objectId).exec();
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
 
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -53,56 +50,43 @@ export class UsersService {
     return user;
   }
 
-  async findOneByEmail(email: string): Promise<User | null> {
+  async findOneByEmail(email: string) {
     console.log('🔍 Finding user by email:', email);
-    const user = await this.userModel.findOne({ email }).exec();
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
     if (!user) {
       throw new NotFoundException(`User with email ${email} not found`);
     }
     return user;
   }
 
-  async update(updateUserDto: UpdateUserDto): Promise<User | null> {
+  async update(updateUserDto: UpdateUserDto) {
     console.log('✏️ Updating user:', updateUserDto._id, updateUserDto);
 
-    // Validate ObjectId format
-    if (!Types.ObjectId.isValid(updateUserDto._id)) {
-      throw new BadRequestException('Invalid ObjectId format');
-    }
-
     // Hash password if it's being updated
-    const updateData = { ...updateUserDto };
+    const updateData: any = { ...updateUserDto };
+    delete updateData._id; // Remove _id as it's not needed in Prisma
+
     if (updateUserDto.password) {
       updateData.password = await hasPasswordHelper(updateUserDto.password);
     }
 
-    const updatedUser = await this.userModel
-      .findByIdAndUpdate(updateUserDto._id, updateData, { new: true })
-      .exec();
-
-    if (!updatedUser) {
-      throw new NotFoundException(
-        `User with ID ${updateUserDto._id} not found`,
-      );
-    }
+    const updatedUser = await this.prisma.user.update({
+      where: { id: updateUserDto._id },
+      data: updateData,
+    });
 
     console.log('Updated user:', updatedUser);
     return updatedUser;
   }
 
-  async remove(id: string): Promise<User | null> {
+  async remove(id: string) {
     console.log('🗑️ Removing user:', id);
 
-    // Validate ObjectId format
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid ObjectId format');
-    }
-
-    const deletedUser = await this.userModel.findByIdAndDelete(id).exec();
-
-    if (!deletedUser) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
+    const deletedUser = await this.prisma.user.delete({
+      where: { id },
+    });
 
     console.log('Deleted user:', deletedUser);
     return deletedUser;

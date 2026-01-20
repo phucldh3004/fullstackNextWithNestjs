@@ -23,12 +23,65 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+CRM Backend API built with NestJS, Prisma, and Supabase PostgreSQL.
 
-## Project setup
+This is a comprehensive CRM (Customer Relationship Management) system featuring:
+- User authentication and role-based authorization
+- Customer management
+- Lead management
+- Marketing campaign management
+- RESTful API with proper validation and error handling
+
+## Tech Stack
+
+- **Framework**: NestJS
+- **Database**: Supabase PostgreSQL
+- **ORM**: Prisma
+- **Authentication**: JWT
+- **Validation**: class-validator
+- **Documentation**: REST API
+
+## Prerequisites
+
+- Node.js 18+
+- Supabase account
+- npm or yarn
+
+## Setup
+
+### 1. Clone and Install
 
 ```bash
+$ git clone <repository-url>
+$ cd backend
 $ npm install
+```
+
+### 2. Supabase Setup
+
+Follow the detailed setup guide in [SUPABASE_SETUP.md](./SUPABASE_SETUP.md)
+
+### 3. Environment Variables
+
+Create `.env` file:
+
+```env
+DATABASE_URL="postgresql://postgres.[project-ref]:[your-password]@aws-0-[region].pooler.supabase.com:5432/postgres?pgbouncer=true&connection_limit=1"
+JWT_SECRET=your-super-secret-jwt-key
+JWT_ACCESS_TOKEN_EXPIRED=3600s
+```
+
+### 4. Database Migration
+
+```bash
+# Generate Prisma client
+$ npm run db:generate
+
+# Run migrations
+$ npm run db:migrate
+
+# (Optional) Open Prisma Studio
+$ npm run db:studio
 ```
 
 ## Compile and run the project

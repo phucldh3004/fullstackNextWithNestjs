@@ -1,0 +1,130 @@
+{
+  "database": "crm_system",
+  "version": "1.0.0",
+  "description": "CRM System Database Schema for Supabase PostgreSQL",
+  "created_at": "2025-01-20",
+  "author": "CRM Backend Team",
+
+  "extensions": [
+    {
+      "name": "uuid-ossp",
+      "description": "UUID generation extension"
+    }
+  ],
+
+  "tables": [
+    {
+      "name": "users",
+      "description": "System users with authentication and roles",
+      "columns": [
+        {"name": "id", "type": "VARCHAR(36)", "primary_key": true, "default": "cuid()"},
+        {"name": "name", "type": "VARCHAR(255)", "nullable": false},
+        {"name": "email", "type": "VARCHAR(100)", "nullable": false, "unique": true},
+        {"name": "password", "type": "VARCHAR(255)", "nullable": false},
+        {"name": "phone", "type": "VARCHAR(20)"},
+        {"name": "address", "type": "TEXT"},
+        {"name": "image", "type": "VARCHAR(500)"},
+        {"name": "account_type", "type": "VARCHAR(20)", "default": "'local'"},
+        {"name": "role", "type": "VARCHAR(20)", "default": "'user'"},
+        {"name": "is_active", "type": "BOOLEAN", "default": "true"},
+        {"name": "code_id", "type": "VARCHAR(100)"},
+        {"name": "code_expired", "type": "TIMESTAMP"},
+        {"name": "createdAt", "type": "TIMESTAMP", "default": "now()"},
+        {"name": "updatedAt", "type": "TIMESTAMP", "default": "now()"}
+      ]
+    },
+    {
+      "name": "customers",
+      "description": "Customer information and relationships",
+      "columns": [
+        {"name": "id", "type": "VARCHAR(36)", "primary_key": true, "default": "cuid()"},
+        {"name": "name", "type": "VARCHAR(255)", "nullable": false},
+        {"name": "email", "type": "VARCHAR(100)", "nullable": false, "unique": true},
+        {"name": "phone", "type": "VARCHAR(20)"},
+        {"name": "address", "type": "TEXT"},
+        {"name": "customerType", "type": "VARCHAR(20)", "default": "'INDIVIDUAL'"},
+        {"name": "status", "type": "VARCHAR(20)", "default": "'ACTIVE'"},
+        {"name": "assignedTo", "type": "VARCHAR(36)", "foreign_key": "users(id)"},
+        {"name": "company", "type": "VARCHAR(255)"},
+        {"name": "notes", "type": "TEXT"},
+        {"name": "createdAt", "type": "TIMESTAMP", "default": "now()"},
+        {"name": "updatedAt", "type": "TIMESTAMP", "default": "now()"}
+      ]
+    },
+    {
+      "name": "leads",
+      "description": "Lead management and conversion tracking",
+      "columns": [
+        {"name": "id", "type": "VARCHAR(36)", "primary_key": true, "default": "cuid()"},
+        {"name": "name", "type": "VARCHAR(255)", "nullable": false},
+        {"name": "email", "type": "VARCHAR(100)", "nullable": false},
+        {"name": "phone", "type": "VARCHAR(20)"},
+        {"name": "company", "type": "VARCHAR(255)"},
+        {"name": "source", "type": "VARCHAR(50)"},
+        {"name": "status", "type": "VARCHAR(20)", "default": "'NEW'"},
+        {"name": "assignedTo", "type": "VARCHAR(36)", "foreign_key": "users(id)"},
+        {"name": "createdBy", "type": "VARCHAR(36)", "nullable": false, "foreign_key": "users(id)"},
+        {"name": "notes", "type": "TEXT"},
+        {"name": "budget", "type": "DECIMAL(15,2)"},
+        {"name": "timeline", "type": "VARCHAR(255)"},
+        {"name": "lastContact", "type": "TIMESTAMP"},
+        {"name": "convertedToCustomer", "type": "VARCHAR(36)", "foreign_key": "customers(id)"},
+        {"name": "createdAt", "type": "TIMESTAMP", "default": "now()"},
+        {"name": "updatedAt", "type": "TIMESTAMP", "default": "now()"}
+      ]
+    },
+    {
+      "name": "campaigns",
+      "description": "Marketing campaigns and analytics",
+      "columns": [
+        {"name": "id", "type": "VARCHAR(36)", "primary_key": true, "default": "cuid()"},
+        {"name": "name", "type": "VARCHAR(255)", "nullable": false},
+        {"name": "description", "type": "TEXT"},
+        {"name": "type", "type": "VARCHAR(20)", "nullable": false},
+        {"name": "status", "type": "VARCHAR(20)", "default": "'DRAFT'"},
+        {"name": "createdBy", "type": "VARCHAR(36)", "nullable": false, "foreign_key": "users(id)"},
+        {"name": "startDate", "type": "TIMESTAMP"},
+        {"name": "endDate", "type": "TIMESTAMP"},
+        {"name": "targetAudience", "type": "VARCHAR(255)"},
+        {"name": "content", "type": "TEXT"},
+        {"name": "subject", "type": "VARCHAR(255)"},
+        {"name": "budget", "type": "DECIMAL(15,2)"},
+        {"name": "leadCount", "type": "INTEGER"},
+        {"name": "conversionRate", "type": "DECIMAL(5,2)"},
+        {"name": "cost", "type": "DECIMAL(15,2)"},
+        {"name": "revenue", "type": "DECIMAL(15,2)"},
+        {"name": "createdAt", "type": "TIMESTAMP", "default": "now()"},
+        {"name": "updatedAt", "type": "TIMESTAMP", "default": "now()"}
+      ]
+    }
+  ],
+
+  "enums": {
+    "customer_type": ["INDIVIDUAL", "BUSINESS", "ENTERPRISE"],
+    "customer_status": ["ACTIVE", "INACTIVE", "SUSPENDED"],
+    "lead_status": ["NEW", "CONTACTING", "INTERESTED", "NOT_POTENTIAL", "CONVERTED"],
+    "lead_source": ["WEBSITE", "SOCIAL_MEDIA", "REFERRAL", "EMAIL_CAMPAIGN", "PHONE", "TRADE_SHOW", "OTHER"],
+    "campaign_type": ["EMAIL", "SMS", "SOCIAL_MEDIA", "WEB_BANNER"],
+    "campaign_status": ["DRAFT", "ACTIVE", "PAUSED", "COMPLETED", "CANCELLED"],
+    "user_role": ["ADMIN", "SALES", "MARKETING", "ACCOUNTANT", "SUPPORT", "CUSTOMER"]
+  },
+
+  "indexes": [
+    {"name": "idx_leads_assigned_to", "table": "leads", "columns": ["assignedTo"]},
+    {"name": "idx_leads_created_by", "table": "leads", "columns": ["createdBy"]},
+    {"name": "idx_customers_assigned_to", "table": "customers", "columns": ["assignedTo"]},
+    {"name": "idx_customers_email", "table": "customers", "columns": ["email"]},
+    {"name": "idx_campaigns_created_by", "table": "campaigns", "columns": ["createdBy"]},
+    {"name": "idx_users_email", "table": "users", "columns": ["email"]},
+    {"name": "idx_users_role", "table": "users", "columns": ["role"]}
+  ],
+
+  "notes": [
+    "All tables use VARCHAR(36) for IDs to work with Prisma cuid()",
+    "Timestamps are handled by Prisma automatically",
+    "Foreign key constraints ensure data integrity",
+    "Indexes improve query performance for common lookups",
+    "Enums provide type safety for status fields"
+  ]
+}
+   

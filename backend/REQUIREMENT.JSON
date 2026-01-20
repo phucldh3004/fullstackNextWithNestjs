@@ -1,0 +1,235 @@
+{
+    "system": {
+      "name": "Customer Relationship Management",
+      "shortName": "CRM",
+      "version": "1.0.0",
+      "description": "Hệ thống quản lý quan hệ khách hàng, hỗ trợ Marketing, Sales, CSKH và Tài chính"
+    },
+  
+    "actors": [
+      {
+        "id": "ADMIN",
+        "name": "Admin",
+        "description": "Quản trị hệ thống"
+      },
+      {
+        "id": "SALES",
+        "name": "Sales",
+        "description": "Nhân viên kinh doanh"
+      },
+      {
+        "id": "MARKETING",
+        "name": "Marketing",
+        "description": "Nhân viên marketing"
+      },
+      {
+        "id": "ACCOUNTANT",
+        "name": "Kế toán",
+        "description": "Nhân viên tài chính"
+      },
+      {
+        "id": "SUPPORT",
+        "name": "CSKH / Support",
+        "description": "Nhân viên hỗ trợ khách hàng"
+      },
+      {
+        "id": "CUSTOMER",
+        "name": "Khách hàng",
+        "description": "Người gửi yêu cầu hỗ trợ"
+      }
+    ],
+  
+    "modules": [
+      {
+        "id": "CUSTOMER_MANAGEMENT",
+        "name": "Quản lý khách hàng",
+        "description": "Quản lý thông tin khách hàng chính thức",
+        "actors": ["ADMIN", "SALES"],
+        "functions": [
+          "createCustomer",
+          "updateCustomer",
+          "deleteCustomer",
+          "viewCustomerDetail",
+          "classifyCustomer",
+          "viewInteractionHistory"
+        ],
+        "data": [
+          "customerId",
+          "name",
+          "email",
+          "phone",
+          "address",
+          "customerType",
+          "status"
+        ]
+      },
+  
+      {
+        "id": "LEAD_MANAGEMENT",
+        "name": "Quản lý khách hàng tiềm năng",
+        "description": "Quản lý lead từ marketing và sales",
+        "actors": ["ADMIN", "SALES", "MARKETING"],
+        "functions": [
+          "createLead",
+          "updateLead",
+          "deleteLead",
+          "assignLead",
+          "changeLeadStatus",
+          "convertLeadToCustomer"
+        ],
+        "leadStatus": [
+          "NEW",
+          "CONTACTING",
+          "INTERESTED",
+          "NOT_POTENTIAL",
+          "CONVERTED"
+        ]
+      },
+  
+      {
+        "id": "MARKETING_CAMPAIGN",
+        "name": "Quản lý chiến dịch Marketing",
+        "description": "Quản lý và đo lường hiệu quả chiến dịch marketing",
+        "actors": ["ADMIN", "MARKETING"],
+        "functions": [
+          "createCampaign",
+          "updateCampaign",
+          "sendEmail",
+          "sendSMS",
+          "trackCampaignResult",
+          "analyzeROI"
+        ],
+        "metrics": [
+          "leadCount",
+          "conversionRate",
+          "cost",
+          "revenue"
+        ]
+      },
+  
+      {
+        "id": "ORDER_MANAGEMENT",
+        "name": "Quản lý đơn hàng",
+        "description": "Quản lý quy trình bán hàng",
+        "actors": ["ADMIN", "SALES"],
+        "functions": [
+          "createOrder",
+          "updateOrder",
+          "cancelOrder",
+          "viewOrderDetail",
+          "updateOrderStatus"
+        ],
+        "orderStatus": [
+          "NEW",
+          "PROCESSING",
+          "COMPLETED",
+          "CANCELLED"
+        ]
+      },
+  
+      {
+        "id": "PAYMENT_MANAGEMENT",
+        "name": "Quản lý phiếu thu",
+        "description": "Quản lý thanh toán và công nợ",
+        "actors": ["ADMIN", "ACCOUNTANT"],
+        "functions": [
+          "createReceipt",
+          "updateReceipt",
+          "trackPayment",
+          "manageDebt",
+          "viewPaymentReport"
+        ],
+        "paymentMethods": [
+          "CASH",
+          "BANK_TRANSFER",
+          "ONLINE_PAYMENT"
+        ]
+      },
+  
+      {
+        "id": "TICKET_MANAGEMENT",
+        "name": "Quản lý Ticket",
+        "description": "Quản lý yêu cầu hỗ trợ và sự vụ",
+        "actors": ["ADMIN", "SUPPORT", "CUSTOMER"],
+        "functions": [
+          "createTicket",
+          "assignTicket",
+          "updateTicketStatus",
+          "addComment",
+          "closeTicket"
+        ],
+        "ticketStatus": [
+          "NEW",
+          "IN_PROGRESS",
+          "WAITING_RESPONSE",
+          "RESOLVED",
+          "CLOSED"
+        ],
+        "sla": {
+          "responseTime": "24h",
+          "resolutionTime": "72h"
+        }
+      },
+  
+      {
+        "id": "USER_PERMISSION",
+        "name": "Quản lý người dùng & phân quyền",
+        "description": "Quản lý tài khoản và phân quyền hệ thống",
+        "actors": ["ADMIN"],
+        "functions": [
+          "createUser",
+          "updateUser",
+          "lockUser",
+          "assignRole",
+          "managePermission"
+        ],
+        "roles": [
+          "ADMIN",
+          "SALES",
+          "MARKETING",
+          "ACCOUNTANT",
+          "SUPPORT"
+        ]
+      },
+  
+      {
+        "id": "REPORTING",
+        "name": "Báo cáo & Thống kê",
+        "description": "Cung cấp báo cáo tổng hợp cho quản lý",
+        "actors": ["ADMIN"],
+        "reports": [
+          "customerReport",
+          "leadReport",
+          "orderReport",
+          "revenueReport",
+          "marketingReport",
+          "ticketReport"
+        ]
+      }
+    ],
+  
+    "nonFunctionalRequirements": {
+      "security": [
+        "Role-based access control",
+        "Password encryption",
+        "Audit log"
+      ],
+      "performance": {
+        "maxResponseTime": "3s",
+        "concurrentUsers": 500
+      },
+      "scalability": [
+        "Microservice ready",
+        "API integration support"
+      ]
+    },
+  
+    "architecture": {
+      "frontend": "nextjs",
+      "backend": "NestJS",
+      "database": "MySQL / PostgreSQL / Oracle",
+      "authentication": "JWT / OAuth2",
+      "deployment": "Docker / Cloud"
+    }
+  }
+  

@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  password    String
+  phone       String?
+  address     String?
+  image       String?
+  account_type String  @default("local")
+  role        String  @default("user")
+  is_active   Boolean @default(true)
+  code_id     String?
+  code_expired DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  // Relations
+  createdLeads    Lead[]     @relation("CreatedBy")
+  assignedLeads   Lead[]     @relation("AssignedTo")
+  createdCampaigns Campaign[] @relation("CreatedBy")
+  assignedCustomers Customer[] @relation("AssignedTo")
+
+  @@map("users")
+}
+
+model Customer {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  phone       String?
+  address     String?
+  customerType String  @default("INDIVIDUAL")
+  status      String   @default("ACTIVE")
+  assignedTo  String?
+  assignedToUser User?     @relation("AssignedTo", fields: [assignedTo], references: [id])
+  company     String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  // Relations
+  convertedFromLead Lead? @relation("ConvertedToCustomer")
+
+  @@map("customers")
+}
+
+model Lead {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  company     String?
+  source      String?
+  status      String   @default("NEW")
+  assignedTo  String?
+  assignedToUser User?     @relation("AssignedTo", fields: [assignedTo], references: [id])
+  createdBy   String
+  createdByUser User      @relation("CreatedBy", fields: [createdBy], references: [id])
+  notes       String?
+  budget      Float?
+  timeline    String?
+  lastContact DateTime?
+  convertedToCustomer String? @unique
+  convertedToCustomerRelation Customer? @relation("ConvertedToCustomer", fields: [convertedToCustomer], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  @@map("leads")
+}
+
+model Campaign {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  type        String
+  status      String   @default("DRAFT")
+  createdBy   String
+  createdByUser User     @relation("CreatedBy", fields: [createdBy], references: [id])
+  startDate   DateTime?
+  endDate     DateTime?
+  targetAudience String?
+  content     String?
+  subject     String?
+  budget      Float?
+  leadCount   Int?
+  conversionRate Float?
+  cost        Float?
+  revenue     Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  @@map("campaigns")
+}

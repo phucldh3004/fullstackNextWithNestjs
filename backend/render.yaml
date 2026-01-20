@@ -17,14 +17,14 @@ services:
         value: production
       - key: PORT
         value: 3001
-      - key: MONGODB_URI_USER
+      - key: DATABASE_URL
         sync: false
-      - key: MONGODB_URI_APP
+      - key: DIRECT_URL
         sync: false
       - key: JWT_SECRET
         generateValue: true
-      - key: JWT_EXPIRES_IN
-        value: 7d
+      - key: JWT_ACCESS_TOKEN_EXPIRED
+        value: 1d
       - key: FRONTEND_URL
         sync: false
     autoDeploy: true
