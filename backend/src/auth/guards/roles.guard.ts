@@ -1,6 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { UsersService } from '../../users/users.service';
+import { SetMetadata } from '@nestjs/common';
 
 export enum UserRole {
   ADMIN = 'ADMIN',
@@ -12,7 +13,7 @@ export enum UserRole {
 }
 
 export const ROLES_KEY = 'roles';
-export const Roles = (...roles: UserRole[]) => Reflector.createDecorator<string[]>(ROLES_KEY);
+export const Roles = (...roles: UserRole[]) => SetMetadata(ROLES_KEY, roles);
 
 @Injectable()
 export class RolesGuard implements CanActivate {

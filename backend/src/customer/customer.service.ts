@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
-import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { UpdateCustomerDto, CustomerType } from './dto/update-customer.dto';
 
 @Injectable()
 export class CustomerService {
@@ -47,10 +47,9 @@ export class CustomerService {
   }
 
   async remove(id: string): Promise<void> {
-    const result = await this.prisma.customer.delete({
+    await this.prisma.customer.delete({
       where: { id },
     });
-    return result;
   }
 
   async findByEmail(email: string) {
@@ -59,7 +58,7 @@ export class CustomerService {
     });
   }
 
-  async classifyCustomer(id: string, customerType: string) {
+  async classifyCustomer(id: string, customerType: CustomerType) {
     return this.update(id, { customerType });
   }
 

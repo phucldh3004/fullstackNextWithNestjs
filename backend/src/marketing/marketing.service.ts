@@ -53,10 +53,9 @@ export class MarketingService {
   }
 
   async remove(id: string): Promise<void> {
-    const result = await this.prisma.campaign.delete({
+    await this.prisma.campaign.delete({
       where: { id },
     });
-    return result;
   }
 
   // Simulate sending email/SMS (would integrate with actual service)

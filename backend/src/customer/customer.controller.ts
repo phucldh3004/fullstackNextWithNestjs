@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
-import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { UpdateCustomerDto, CustomerType } from './dto/update-customer.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { RolesGuard, Roles, UserRole } from '../auth/guards/roles.guard';
 
@@ -52,7 +52,7 @@ export class CustomerController {
   @Patch(':id/classify/:type')
   @Roles(UserRole.ADMIN, UserRole.SALES)
   classifyCustomer(@Param('id') id: string, @Param('type') type: string) {
-    return this.customerService.classifyCustomer(id, type);
+    return this.customerService.classifyCustomer(id, type as CustomerType);
   }
 
   @Get(':id/interactions')

@@ -65,10 +65,9 @@ export class LeadService {
   }
 
   async remove(id: string): Promise<void> {
-    const result = await this.prisma.lead.delete({
+    await this.prisma.lead.delete({
       where: { id },
     });
-    return result;
   }
 
   async assignLead(id: string, assignedTo: string) {
