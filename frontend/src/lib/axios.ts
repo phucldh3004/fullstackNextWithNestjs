@@ -65,12 +65,12 @@ export default axiosInstance;
 
 // Export helper functions for common HTTP methods
 export const api = {
-  get: <T = unknown>(url: string, config?: AxiosRequestConfig) =>
-    axiosInstance.get<T>(url, config).then((res) => res.data),
+  get: <T = unknown>(url: string, config?: AxiosRequestConfig) => 
+     axiosInstance.get<T>(url, config).then((res) => res.data),
 
-  post: <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
-    axiosInstance.post<T>(url, data, config).then((res) => res.data),
-
+  post: <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig) => {
+   return  axiosInstance.post<T>(url, data, config).then((res) => res.data)
+  } ,
   put: <T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig) =>
     axiosInstance.put<T>(url, data, config).then((res) => res.data),
 

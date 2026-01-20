@@ -8,7 +8,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { username, password } = body;
-console.log('username', username);
     // Call backend API
     const response = await axios.post(`${BACKEND_URL}/auth/login`, {
       username,
@@ -16,6 +15,8 @@ console.log('username', username);
     });
 
     const { access_token } = response.data;
+
+    console.log('hihihihihih')
 
     // Set access_token in HTTP-only cookie (secure)
     const cookieStore = await cookies();

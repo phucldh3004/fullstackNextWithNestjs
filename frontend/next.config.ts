@@ -1,12 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Fix Turbopack root directory issue
+  turbopack: {
+    root: __dirname,
+  },
+
   // Proxy API requests to backend
   // async rewrites() {
   //   return [
   //     {
   //       source: '/api/:path*',
-  //       destination: process.env.NEXT_PUBLIC_API_URL 
+  //       destination: process.env.NEXT_PUBLIC_API_URL
   //         ? `${process.env.NEXT_PUBLIC_API_URL}/:path*`
   //         : 'http://localhost:3001/:path*', // Fallback to local backend
   //     },

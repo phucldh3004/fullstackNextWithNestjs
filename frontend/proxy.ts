@@ -11,7 +11,22 @@ export function proxy(request: NextRequest) {
   // Check the origin from the request
   const origin = request.headers.get('origin') ?? ''
   const isAllowedOrigin = allowedOrigins.includes(origin)
- console.log('origin 22222', origin);
+ console.log('origin 22222', origin ,request);
+
+
+ const token = request.cookies.get('access_token')?.value;
+ 
+
+ const { pathname } = request.nextUrl;
+
+ if (!token && !pathname.startsWith('/login')) {
+    // Chuyển hướng về trang login
+    const loginUrl = new URL('/login', request.url);
+    return NextResponse.redirect(loginUrl);
+  }
+  if (token && pathname === '/login') {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
   // Handle preflighted requests
   const isPreflight = request.method === 'OPTIONS'
  
@@ -35,8 +50,4 @@ export function proxy(request: NextRequest) {
   })
  
   return response
-}
- 
-export const config = {
-  matcher: '/api/:path*',
 }

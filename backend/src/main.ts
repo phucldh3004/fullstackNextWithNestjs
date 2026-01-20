@@ -18,7 +18,7 @@ async function bootstrap() {
         'https://fullstacknextwithnestjs.onrender.com',
       ]);
 
-      if (!origin) return callback(null, true); // Postman/curl
+      if (!origin) return callback(null, true);
       return callback(null, allowed.has(origin));
     },
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],

@@ -7,6 +7,8 @@ import { api } from "@/lib/axios"
 
 
 
+
+
 export default function LoginPage() {
   const router = useRouter()
   const [formData, setFormData] = useState({
@@ -16,36 +18,41 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
+
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setError("")
-    setIsLoading(true)
-    console.log('formData', formData);
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+
     try {
-      // Call Next.js API route (will set cookie on server-side)
-      const  reponsse = await api.post('/auth/login', {
-        username: formData.username,
-        password: formData.password
-      }) 
-     
-      console.log('reponsse', reponsse);
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+        }),
+        credentials: "include", // gửi / nhận cookie
+      });
 
-      // Token is now stored in HTTP-only cookie (more secure)
-      // No need to store in localStorage anymore
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.message || "Đăng nhập thất bại");
+      }
 
-      // Check if there's a redirect query param
-      const searchParams = new URLSearchParams(window.location.search)
-      const redirectTo = searchParams.get('redirect') || '/'
+      // Không cần lấy access_token ở client nữa – đã nằm trong HTTP-only cookie
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectTo = searchParams.get("redirect") || "/";
 
-      // Redirect after successful login
-      router.push(redirectTo)
-      router.refresh() // Refresh to update middleware check
+      router.push(redirectTo);
+      router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Có lỗi xảy ra")
+      setError(err instanceof Error ? err.message : "Có lỗi xảy ra");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 p-4">
