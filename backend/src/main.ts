@@ -5,21 +5,20 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS for frontend - cho phép 2 origins
+  // Enable CORS for frontend - cho phép multiple origins từ FRONTEND_URL
   app.enableCors({
     // origin phải là domain FRONTEND (nơi browser chạy), ví dụ localhost/vercel.
     // Dùng function để:
     // - allow Postman/curl (origin undefined)
     // - match chính xác origin của browser
     origin: (origin, callback) => {
-      const allowed = new Set([
-        'http://localhost:3000',
-        'https://fullstack-next-with-nestjs.vercel.app',
-        'https://fullstacknextwithnestjs.onrender.com',
-      ]);
+      const frontendUrls = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const allowed = new Set(
+        frontendUrls.split(',').map(url => url.trim())
+      );
 
       if (!origin) return callback(null, true);
-      return callback(null, allowed.has(origin));
+      return callback(null, allowed.has(origin as string));
     },
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     credentials: true, // Quan trọng nếu bạn dùng Cookie hoặc JWT trong Header

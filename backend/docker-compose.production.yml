@@ -38,16 +38,16 @@ services:
       NODE_ENV: production
       PORT: ${PORT:-3001}
 
-      # MongoDB URIs
-      MONGODB_URI_USER: ${MONGODB_URI_USER:-mongodb://root:changeme@mongodb:27017/users_db?authSource=admin}
-      MONGODB_URI_APP: ${MONGODB_URI_APP:-mongodb://root:changeme@mongodb:27017/app_db?authSource=admin}
+      # Supabase Database Configuration
+      DATABASE_URL: ${DATABASE_URL}
+      DIRECT_URL: ${DIRECT_URL}
 
       # JWT Configuration
       JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      JWT_ACCESS_TOKEN_EXPIRED: ${JWT_ACCESS_TOKEN_EXPIRED:-1d}
 
       # CORS Configuration
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000,https://fullstack-nwn-crm.vercel.app/}
     depends_on:
       mongodb:
         condition: service_healthy
