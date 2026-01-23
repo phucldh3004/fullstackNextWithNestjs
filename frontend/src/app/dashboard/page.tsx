@@ -1,84 +1,76 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import {
+  Box,
+  Container,
+  Card,
+  CardContent,
+  Typography,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
+  Avatar,
+  Divider,
+} from "@mui/material"
+import {
+  People as PeopleIcon,
+  Flag as FlagIcon,
+  Campaign as CampaignIcon,
+} from "@mui/icons-material"
+import { BarChart } from "@mui/x-charts/BarChart"
+import { PieChart } from "@mui/x-charts/PieChart"
 
 interface DashboardStats {
   totalCustomers: number
   totalLeads: number
   totalCampaigns: number
-  totalOrders: number
-  totalTickets: number
+  totalUsers: number
   recentActivities: Array<{
     id: string
     type: string
     description: string
     timestamp: string
   }>
+  chartData: {
+    monthlyData: Array<{ month: string; customers: number; leads: number; campaigns: number }>
+    leadStatusData: Array<{ status: string; value: number }>
+  }
 }
 
 export default function DashboardPage() {
-  const router = useRouter()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check authentication
-    const checkAuth = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const response = await fetch('/api/auth/check', {
-          credentials: 'include'
-        })
-
-        if (!response.ok) {
-          router.push('/login')
-          return
+        const response = await fetch('/api/dashboard')
+        if (response.ok) {
+          const data = await response.json()
+          setStats(data)
+        } else {
+          console.error('Failed to fetch dashboard data')
         }
-
-        // Mock data for now
-        setStats({
-          totalCustomers: 1250,
-          totalLeads: 450,
-          totalCampaigns: 12,
-          totalOrders: 320,
-          totalTickets: 85,
-          recentActivities: [
-            {
-              id: '1',
-              type: 'customer',
-              description: 'Khách hàng mới: Nguyễn Văn A',
-              timestamp: '2024-01-20 10:30'
-            },
-            {
-              id: '2',
-              type: 'lead',
-              description: 'Lead mới từ chiến dịch Email Marketing',
-              timestamp: '2024-01-20 09:15'
-            },
-            {
-              id: '3',
-              type: 'order',
-              description: 'Đơn hàng #ORD-2024-001 đã được tạo',
-              timestamp: '2024-01-20 08:45'
-            }
-          ]
-        })
       } catch (error) {
-        console.error('Auth check failed:', error)
-        router.push('/login')
+        console.error('Error fetching dashboard data:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    checkAuth()
-  }, [router])
+    fetchDashboardData()
+  }, [])
+
+
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress />
+      </Box>
     )
   }
 
@@ -87,100 +79,157 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Tổng quan hệ thống CRM</p>
-      </div>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box mb={4}>
+        <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
+          Dashboard
+        </Typography>
+        <Typography variant="subtitle1" color="text.secondary">
+          Tổng quan hệ thống CRM
+        </Typography>
+      </Box>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <span className="text-2xl">👥</span>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Khách hàng</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalCustomers}</p>
-            </div>
-          </div>
-        </div>
+      <Box display="flex" flexWrap="wrap" gap={3} mb={4}>
+        <Card sx={{ flex: '1 1 250px', minWidth: '200px' }}>
+          <CardContent>
+            <Box display="flex" alignItems="center">
+              <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>
+                <PeopleIcon />
+              </Avatar>
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Khách hàng
+                </Typography>
+                <Typography variant="h5" fontWeight="bold">
+                  {stats.totalCustomers.toLocaleString()}
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <span className="text-2xl">🎯</span>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Leads</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalLeads}</p>
-            </div>
-          </div>
-        </div>
+        <Card sx={{ flex: '1 1 250px', minWidth: '200px' }}>
+          <CardContent>
+            <Box display="flex" alignItems="center">
+              <Avatar sx={{ bgcolor: 'success.main', mr: 2 }}>
+                <FlagIcon />
+              </Avatar>
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Leads
+                </Typography>
+                <Typography variant="h5" fontWeight="bold">
+                  {stats.totalLeads.toLocaleString()}
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <span className="text-2xl">📢</span>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Chiến dịch</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalCampaigns}</p>
-            </div>
-          </div>
-        </div>
+        <Card sx={{ flex: '1 1 250px', minWidth: '200px' }}>
+          <CardContent>
+            <Box display="flex" alignItems="center">
+              <Avatar sx={{ bgcolor: 'secondary.main', mr: 2 }}>
+                <CampaignIcon />
+              </Avatar>
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Chiến dịch
+                </Typography>
+                <Typography variant="h5" fontWeight="bold">
+                  {stats.totalCampaigns.toLocaleString()}
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-3 bg-orange-100 rounded-lg">
-              <span className="text-2xl">📦</span>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Đơn hàng</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalOrders}</p>
-            </div>
-          </div>
-        </div>
+        <Card sx={{ flex: '1 1 250px', minWidth: '200px' }}>
+          <CardContent>
+            <Box display="flex" alignItems="center">
+              <Avatar sx={{ bgcolor: 'warning.main', mr: 2 }}>
+                <PeopleIcon />
+              </Avatar>
+              <Box>
+                <Typography variant="body2" color="text.secondary">
+                  Người dùng
+                </Typography>
+                <Typography variant="h5" fontWeight="bold">
+                  {stats.totalUsers.toLocaleString()}
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-3 bg-red-100 rounded-lg">
-              <span className="text-2xl">🎫</span>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Tickets</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalTickets}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Charts */}
+      <Box display="flex" flexWrap="wrap" gap={3} mb={4}>
+        <Card sx={{ flex: '2 1 500px', minWidth: '400px' }}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Thống kê theo tháng
+            </Typography>
+            <BarChart
+              height={300}
+              series={[
+                { data: stats.chartData.monthlyData.map(d => d.customers), label: 'Khách hàng', color: '#2563eb' },
+                { data: stats.chartData.monthlyData.map(d => d.leads), label: 'Leads', color: '#16a34a' },
+                { data: stats.chartData.monthlyData.map(d => d.campaigns), label: 'Chiến dịch', color: '#dc2626' },
+              ]}
+              xAxis={[{ data: stats.chartData.monthlyData.map(d => d.month), scaleType: 'band' }]}
+            />
+          </CardContent>
+        </Card>
+
+        <Card sx={{ flex: '1 1 300px', minWidth: '250px' }}>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              Trạng thái Leads
+            </Typography>
+            <PieChart
+              series={[
+                {
+                  data: stats.chartData.leadStatusData,
+                  innerRadius: 30,
+                  outerRadius: 100,
+                },
+              ]}
+              height={300}
+            />
+          </CardContent>
+        </Card>
+      </Box>
 
       {/* Recent Activities */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Hoạt động gần đây</h2>
-        </div>
-        <div className="divide-y divide-gray-200">
-          {stats.recentActivities.map((activity) => (
-            <div key={activity.id} className="px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    {activity.type === 'customer' && <span className="text-lg">👥</span>}
-                    {activity.type === 'lead' && <span className="text-lg">🎯</span>}
-                    {activity.type === 'order' && <span className="text-lg">📦</span>}
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">{activity.description}</p>
-                    <p className="text-xs text-gray-500">{activity.timestamp}</p>
-                  </div>
-                </div>
+      <Card>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Hoạt động gần đây
+          </Typography>
+          <List>
+            {stats.recentActivities.map((activity, index) => (
+              <div key={activity.id}>
+                <ListItem>
+                  <ListItemAvatar>
+                    <Avatar sx={{ bgcolor: 'primary.main' }}>
+                      {activity.type === 'customer' && <PeopleIcon />}
+                      {activity.type === 'lead' && <FlagIcon />}
+                      {activity.type === 'campaign' && <CampaignIcon />}
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={activity.description}
+                    secondary={activity.timestamp}
+                  />
+                </ListItem>
+                {index < stats.recentActivities.length - 1 && <Divider variant="inset" />}
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+            ))}
+          </List>
+        </CardContent>
+      </Card>
+    </Container>
   )
 }

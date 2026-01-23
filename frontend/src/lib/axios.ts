@@ -31,6 +31,19 @@ axiosInstance.interceptors.request.use(
     // Use CORS configuration from proxy.ts
     // Headers are automatically handled by the proxy middleware
     // withCredentials: true ensures cookies are sent with requests
+
+    // Add JWT token from cookies if available (client-side only)
+    if (typeof window !== 'undefined') {
+      const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('access_token='))
+        ?.split('=')[1];
+
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+
     return config;
   },
   (error) => {
