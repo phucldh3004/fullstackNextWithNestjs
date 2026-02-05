@@ -6,8 +6,8 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "npx nest build",
-    "build:tsc": "tsc -p tsconfig.build.json",
+    "build": "npx prisma generate && npx nest build",
+    "build:tsc": "npx prisma generate && tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
