@@ -5,13 +5,14 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; status: string } }
+  { params }: { params: Promise<{ id: string; status: string }> }
 ) {
   try {
+    const { id, status } = await params
     const cookies = request.cookies
     const token = cookies.get('access_token')?.value
 
-    const response = await fetch(`${API_URL}/orders/${params.id}/status/${params.status}`, {
+    const response = await fetch(`${API_URL}/orders/${id}/status/${status}`, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${token}`,

@@ -5,13 +5,14 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const cookies = request.cookies
     const token = cookies.get('access_token')?.value
 
-    const response = await fetch(`${API_URL}/users/${params.id}`, {
+    const response = await fetch(`${API_URL}/users/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,
