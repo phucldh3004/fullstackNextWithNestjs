@@ -2,36 +2,15 @@
 
 import { useState, useEffect } from "react"
 import {
-  Box,
-  Container,
-  Typography,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Chip,
-  Avatar,
-  Fab,
+  Box, Container, Typography, Button, Table, TableBody, TableCell,
+  TableContainer, TableHead, TableRow, Paper, IconButton, Dialog,
+  DialogTitle, DialogContent, DialogActions, TextField, Select,
+  MenuItem, FormControl, InputLabel, Chip, Avatar, CircularProgress,
+  Alert, Snackbar
 } from "@mui/material"
 import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Person as PersonIcon,
+  Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon,
+  Person as PersonIcon, Lock as LockIcon, LockOpen as LockOpenIcon
 } from "@mui/icons-material"
 
 interface User {
@@ -39,20 +18,29 @@ interface User {
   name: string
   email: string
   role: string
-  status: 'active' | 'inactive'
+  is_active: boolean
   createdAt: string
 }
+
+const ROLES = [
+  { value: 'admin', label: 'ADMIN' },
+  { value: 'sales', label: 'SALES' },
+  { value: 'marketing', label: 'MARKETING' },
+  { value: 'accountant', label: 'ACCOUNTANT' },
+  { value: 'support', label: 'SUPPORT' }
+]
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [open, setOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' })
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: 'user',
-    status: 'active' as 'active' | 'inactive'
+    password: '',
+    role: 'sales'
   })
 
   useEffect(() => {
@@ -65,14 +53,17 @@ export default function UsersPage() {
       if (response.ok) {
         const data = await response.json()
         setUsers(data)
-      } else {
-        console.error('Failed to fetch users')
       }
     } catch (error) {
       console.error('Error fetching users:', error)
+      showSnackbar('Lỗi khi tải danh sách người dùng', 'error')
     } finally {
       setLoading(false)
     }
+  }
+
+  const showSnackbar = (message: string, severity: 'success' | 'error') => {
+    setSnackbar({ open: true, message, severity })
   }
 
   const handleOpenDialog = (user?: User) => {
@@ -81,17 +72,12 @@ export default function UsersPage() {
       setFormData({
         name: user.name,
         email: user.email,
-        role: user.role,
-        status: user.status
+        password: '',
+        role: user.role
       })
     } else {
       setEditingUser(null)
-      setFormData({
-        name: '',
-        email: '',
-        role: 'user',
-        status: 'active'
-      })
+      setFormData({ name: '', email: '', password: '', role: 'sales' })
     }
     setOpen(true)
   }
@@ -104,53 +90,89 @@ export default function UsersPage() {
   const handleSubmit = async () => {
     try {
       if (editingUser) {
-        // Update user
-        setUsers(users.map(user =>
-          user.id === editingUser.id
-            ? { ...user, ...formData }
-            : user
-        ))
-      } else {
-        // Create user
-        const newUser: User = {
-          id: Date.now().toString(),
-          ...formData,
-          createdAt: new Date().toISOString().split('T')[0]
+        const response = await fetch('/api/users', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingUser.id,
+            ...formData
+          })
+        })
+        
+        if (response.ok) {
+          showSnackbar('Cập nhật người dùng thành công', 'success')
+          fetchUsers()
+        } else {
+          showSnackbar('Lỗi khi cập nhật người dùng', 'error')
         }
-        setUsers([...users, newUser])
+      } else {
+        const response = await fetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        })
+        
+        if (response.ok) {
+          showSnackbar('Tạo người dùng thành công', 'success')
+          fetchUsers()
+        } else {
+          showSnackbar('Lỗi khi tạo người dùng', 'error')
+        }
       }
       handleCloseDialog()
     } catch (error) {
       console.error('Error saving user:', error)
+      showSnackbar('Có lỗi xảy ra', 'error')
     }
   }
 
   const handleDelete = async (userId: string) => {
     if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
       try {
-        setUsers(users.filter(user => user.id !== userId))
+        const response = await fetch(`/api/users/${userId}`, {
+          method: 'DELETE'
+        })
+        
+        if (response.ok) {
+          showSnackbar('Xóa người dùng thành công', 'success')
+          fetchUsers()
+        } else {
+          showSnackbar('Lỗi khi xóa người dùng', 'error')
+        }
       } catch (error) {
         console.error('Error deleting user:', error)
+        showSnackbar('Có lỗi xảy ra', 'error')
       }
     }
   }
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'admin': return 'error'
-      case 'manager': return 'warning'
-      default: return 'default'
+  const handleToggleLock = async (userId: string, isActive: boolean) => {
+    try {
+      const endpoint = isActive ? 'lock' : 'unlock'
+      const response = await fetch(`/api/users/${userId}/${endpoint}`, {
+        method: 'PATCH'
+      })
+      
+      if (response.ok) {
+        showSnackbar(`${isActive ? 'Khóa' : 'Mở khóa'} người dùng thành công`, 'success')
+        fetchUsers()
+      } else {
+        showSnackbar('Có lỗi xảy ra', 'error')
+      }
+    } catch (error) {
+      console.error('Error toggling lock:', error)
+      showSnackbar('Có lỗi xảy ra', 'error')
     }
   }
 
-  const getStatusColor = (status: string) => {
-    return status === 'active' ? 'success' : 'default'
+  const getRoleLabel = (role: string) => {
+    return ROLES.find(r => r.value === role)?.label || role.toUpperCase()
   }
 
   if (loading) {
     return (
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Typography variant="h4" gutterBottom>Đang tải...</Typography>
+      <Container maxWidth="xl" sx={{ py: 4, display: 'flex', justifyContent: 'center' }}>
+        <CircularProgress />
       </Container>
     )
   }
@@ -161,11 +183,7 @@ export default function UsersPage() {
         <Typography variant="h4" component="h1" fontWeight="bold">
           Quản lý người dùng
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-        >
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
           Thêm người dùng
         </Button>
       </Box>
@@ -195,31 +213,29 @@ export default function UsersPage() {
                 </TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
-                  <Chip
-                    label={user.role === 'admin' ? 'Quản trị viên' : user.role === 'manager' ? 'Quản lý' : 'Người dùng'}
-                    color={getRoleColor(user.role)}
-                    size="small"
-                  />
+                  <Chip label={getRoleLabel(user.role)} color="primary" size="small" />
                 </TableCell>
                 <TableCell>
+                   <Box display="flex" justifyContent="center">
                   <Chip
-                    label={user.status === 'active' ? 'Hoạt động' : 'Không hoạt động'}
-                    color={getStatusColor(user.status)}
+                    label={user.is_active ? 'Hoạt động' : 'Đã khóa'}
+                    color={user.is_active ? 'success' : 'error'}
                     size="small"
                   />
+                  </Box>
                 </TableCell>
-                <TableCell>{user.createdAt}</TableCell>
+                <TableCell>{new Date(user.createdAt).toLocaleDateString('vi-VN')}</TableCell>
                 <TableCell align="right">
-                  <IconButton
-                    color="primary"
-                    onClick={() => handleOpenDialog(user)}
-                  >
+                  <IconButton color="primary" onClick={() => handleOpenDialog(user)}>
                     <EditIcon />
                   </IconButton>
                   <IconButton
-                    color="error"
-                    onClick={() => handleDelete(user.id)}
+                    color={user.is_active ? 'warning' : 'success'}
+                    onClick={() => handleToggleLock(user.id, user.is_active)}
                   >
+                    {user.is_active ? <LockIcon /> : <LockOpenIcon />}
+                  </IconButton>
+                  <IconButton color="error" onClick={() => handleDelete(user.id)}>
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -229,7 +245,6 @@ export default function UsersPage() {
         </Table>
       </TableContainer>
 
-      {/* Dialog for Add/Edit User */}
       <Dialog open={open} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
           {editingUser ? 'Chỉnh sửa người dùng' : 'Thêm người dùng mới'}
@@ -249,6 +264,15 @@ export default function UsersPage() {
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
+            {!editingUser && (
+              <TextField
+                label="Mật khẩu"
+                type="password"
+                fullWidth
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              />
+            )}
             <FormControl fullWidth>
               <InputLabel>Vai trò</InputLabel>
               <Select
@@ -256,20 +280,9 @@ export default function UsersPage() {
                 label="Vai trò"
                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
               >
-                <MenuItem value="user">Người dùng</MenuItem>
-                <MenuItem value="manager">Quản lý</MenuItem>
-                <MenuItem value="admin">Quản trị viên</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth>
-              <InputLabel>Trạng thái</InputLabel>
-              <Select
-                value={formData.status}
-                label="Trạng thái"
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
-              >
-                <MenuItem value="active">Hoạt động</MenuItem>
-                <MenuItem value="inactive">Không hoạt động</MenuItem>
+                {ROLES.map(role => (
+                  <MenuItem key={role.value} value={role.value}>{role.label}</MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Box>
@@ -282,14 +295,15 @@ export default function UsersPage() {
         </DialogActions>
       </Dialog>
 
-      {/* Floating Action Button for mobile */}
-      <Fab
-        color="primary"
-        sx={{ position: 'fixed', bottom: 16, right: 16, display: { xs: 'flex', md: 'none' } }}
-        onClick={() => handleOpenDialog()}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
       >
-        <AddIcon />
-      </Fab>
+        <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   )
 }

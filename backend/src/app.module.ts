@@ -13,6 +13,9 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { JwtAuthGuard } from './auth/guards/jwt.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
+import { PaymentModule } from './payment/payment.module';
+import { TicketModule } from './ticket/ticket.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -31,6 +34,9 @@ import { RolesGuard } from './auth/guards/roles.guard';
     CustomerModule,
     LeadModule,
     MarketingModule,
+    PaymentModule,
+    TicketModule,
+    OrderModule,
   ],
   controllers: [AppController],
   providers: [

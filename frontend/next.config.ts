@@ -1,9 +1,9 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   // Fix Turbopack root directory issue
   turbopack: {
-    root: __dirname,
+    root: __dirname
   },
 
   // Proxy API requests to backend
@@ -20,10 +20,14 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
     return [
+      // {
+      //   source: "/api/:path*",
+      //   destination: "https://fullstacknextwithnestjs.onrender.com/:path*"
+      // }
       {
-        source: '/api/:path*',
-        destination: 'https://fullstacknextwithnestjs.onrender.com/:path*',
-      },
+        source: "/api/:path*",
+        destination: "http://localhost:3001/:path*"
+      }
     ]
   },
 
@@ -31,16 +35,21 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/api/:path*',
+        source: "/api/:path*",
         headers: [
-          { key: 'Access-Control-Allow-Credentials', value: 'true' },
-          { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT' },
-          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version' },
-        ],
-      },
-    ];
-  },
-};
+          { key: "Access-Control-Allow-Credentials", value: "true" },
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET,DELETE,PATCH,POST,PUT" },
+          {
+            key: "Access-Control-Allow-Headers",
+            value:
+              "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+          }
+        ]
+      }
+    ]
+  }
+}
 
-export default nextConfig;
+export default nextConfig
+

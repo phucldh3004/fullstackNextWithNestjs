@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   Box,
   Container,
@@ -13,13 +14,9 @@ import {
   ListItemText,
   ListItemAvatar,
   Avatar,
-  Divider,
+  Divider
 } from "@mui/material"
-import {
-  People as PeopleIcon,
-  Flag as FlagIcon,
-  Campaign as CampaignIcon,
-} from "@mui/icons-material"
+import { People as PeopleIcon, Flag as FlagIcon, Campaign as CampaignIcon } from "@mui/icons-material"
 import { BarChart } from "@mui/x-charts/BarChart"
 import { PieChart } from "@mui/x-charts/PieChart"
 
@@ -43,28 +40,38 @@ interface DashboardStats {
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await fetch('/api/dashboard')
+        const response = await fetch("/api/dashboard")
+        
+        // Check if redirected (which happens when no token)
+        if (response.redirected && response.url.includes("/login")) {
+          router.push("/login")
+          return
+        }
+
         if (response.ok) {
           const data = await response.json()
           setStats(data)
+        } else if (response.status === 401) {
+          // Unauthorized, redirect to login
+          router.push("/login")
+          return
         } else {
-          console.error('Failed to fetch dashboard data')
+          console.error("Failed to fetch dashboard data")
         }
+        setLoading(false)
       } catch (error) {
-        console.error('Error fetching dashboard data:', error)
-      } finally {
+        console.error("Error fetching dashboard data:", error)
         setLoading(false)
       }
     }
 
     fetchDashboardData()
-  }, [])
-
-
+  }, [router])
 
   if (loading) {
     return (
@@ -91,10 +98,10 @@ export default function DashboardPage() {
 
       {/* Stats Cards */}
       <Box display="flex" flexWrap="wrap" gap={3} mb={4}>
-        <Card sx={{ flex: '1 1 250px', minWidth: '200px' }}>
+        <Card sx={{ flex: "1 1 250px", minWidth: "200px" }}>
           <CardContent>
             <Box display="flex" alignItems="center">
-              <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>
+              <Avatar sx={{ bgcolor: "primary.main", mr: 2 }}>
                 <PeopleIcon />
               </Avatar>
               <Box>
@@ -102,17 +109,17 @@ export default function DashboardPage() {
                   Khách hàng
                 </Typography>
                 <Typography variant="h5" fontWeight="bold">
-                  {stats.totalCustomers.toLocaleString()}
+                  {stats?.totalCustomers.toLocaleString()}
                 </Typography>
               </Box>
             </Box>
           </CardContent>
         </Card>
 
-        <Card sx={{ flex: '1 1 250px', minWidth: '200px' }}>
+        <Card sx={{ flex: "1 1 250px", minWidth: "200px" }}>
           <CardContent>
             <Box display="flex" alignItems="center">
-              <Avatar sx={{ bgcolor: 'success.main', mr: 2 }}>
+              <Avatar sx={{ bgcolor: "success.main", mr: 2 }}>
                 <FlagIcon />
               </Avatar>
               <Box>
@@ -120,17 +127,17 @@ export default function DashboardPage() {
                   Leads
                 </Typography>
                 <Typography variant="h5" fontWeight="bold">
-                  {stats.totalLeads.toLocaleString()}
+                  {stats?.totalLeads.toLocaleString()}
                 </Typography>
               </Box>
             </Box>
           </CardContent>
         </Card>
 
-        <Card sx={{ flex: '1 1 250px', minWidth: '200px' }}>
+        <Card sx={{ flex: "1 1 250px", minWidth: "200px" }}>
           <CardContent>
             <Box display="flex" alignItems="center">
-              <Avatar sx={{ bgcolor: 'secondary.main', mr: 2 }}>
+              <Avatar sx={{ bgcolor: "secondary.main", mr: 2 }}>
                 <CampaignIcon />
               </Avatar>
               <Box>
@@ -138,17 +145,17 @@ export default function DashboardPage() {
                   Chiến dịch
                 </Typography>
                 <Typography variant="h5" fontWeight="bold">
-                  {stats.totalCampaigns.toLocaleString()}
+                  {stats?.totalCampaigns.toLocaleString()}
                 </Typography>
               </Box>
             </Box>
           </CardContent>
         </Card>
 
-        <Card sx={{ flex: '1 1 250px', minWidth: '200px' }}>
+        <Card sx={{ flex: "1 1 250px", minWidth: "200px" }}>
           <CardContent>
             <Box display="flex" alignItems="center">
-              <Avatar sx={{ bgcolor: 'warning.main', mr: 2 }}>
+              <Avatar sx={{ bgcolor: "warning.main", mr: 2 }}>
                 <PeopleIcon />
               </Avatar>
               <Box>
@@ -156,7 +163,7 @@ export default function DashboardPage() {
                   Người dùng
                 </Typography>
                 <Typography variant="h5" fontWeight="bold">
-                  {stats.totalUsers.toLocaleString()}
+                  {stats?.totalUsers.toLocaleString()}
                 </Typography>
               </Box>
             </Box>
@@ -166,7 +173,7 @@ export default function DashboardPage() {
 
       {/* Charts */}
       <Box display="flex" flexWrap="wrap" gap={3} mb={4}>
-        <Card sx={{ flex: '2 1 500px', minWidth: '400px' }}>
+        <Card sx={{ flex: "2 1 500px", minWidth: "400px" }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               Thống kê theo tháng
@@ -174,16 +181,16 @@ export default function DashboardPage() {
             <BarChart
               height={300}
               series={[
-                { data: stats.chartData.monthlyData.map(d => d.customers), label: 'Khách hàng', color: '#2563eb' },
-                { data: stats.chartData.monthlyData.map(d => d.leads), label: 'Leads', color: '#16a34a' },
-                { data: stats.chartData.monthlyData.map(d => d.campaigns), label: 'Chiến dịch', color: '#dc2626' },
+                { data: stats.chartData.monthlyData.map((d) => d.customers), label: "Khách hàng", color: "#04a1e4" },
+                { data: stats.chartData.monthlyData.map((d) => d.leads), label: "Leads", color: "#16a34a" },
+                { data: stats.chartData.monthlyData.map((d) => d.campaigns), label: "Chiến dịch", color: "#dc2626" }
               ]}
-              xAxis={[{ data: stats.chartData.monthlyData.map(d => d.month), scaleType: 'band' }]}
+              xAxis={[{ data: stats.chartData.monthlyData.map((d) => d.month), scaleType: "band" }]}
             />
           </CardContent>
         </Card>
 
-        <Card sx={{ flex: '1 1 300px', minWidth: '250px' }}>
+        <Card sx={{ flex: "1 1 300px", minWidth: "250px" }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               Trạng thái Leads
@@ -193,8 +200,8 @@ export default function DashboardPage() {
                 {
                   data: stats.chartData.leadStatusData,
                   innerRadius: 30,
-                  outerRadius: 100,
-                },
+                  outerRadius: 100
+                }
               ]}
               height={300}
             />
@@ -213,16 +220,13 @@ export default function DashboardPage() {
               <div key={activity.id}>
                 <ListItem>
                   <ListItemAvatar>
-                    <Avatar sx={{ bgcolor: 'primary.main' }}>
-                      {activity.type === 'customer' && <PeopleIcon />}
-                      {activity.type === 'lead' && <FlagIcon />}
-                      {activity.type === 'campaign' && <CampaignIcon />}
+                    <Avatar sx={{ bgcolor: "primary.main" }}>
+                      {activity.type === "customer" && <PeopleIcon />}
+                      {activity.type === "lead" && <FlagIcon />}
+                      {activity.type === "campaign" && <CampaignIcon />}
                     </Avatar>
                   </ListItemAvatar>
-                  <ListItemText
-                    primary={activity.description}
-                    secondary={activity.timestamp}
-                  />
+                  <ListItemText primary={activity.description} secondary={activity.timestamp} />
                 </ListItem>
                 {index < stats.recentActivities.length - 1 && <Divider variant="inset" />}
               </div>
@@ -233,3 +237,4 @@ export default function DashboardPage() {
     </Container>
   )
 }
+

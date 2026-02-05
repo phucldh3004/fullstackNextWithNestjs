@@ -22,9 +22,9 @@ export class AuthService {
     const user = await this.usersService.findOneByEmail(username);
 
     if (!user || !(await comparePasswordHelper(pass, user.password))) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Không đúng Tên đăng nhập hoặc mật khẩu");
     }
-    const payload = { sub: user['_id'], username: user.email };
+    const payload = { sub: user.id, username: user.email };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
@@ -67,7 +67,7 @@ export class AuthService {
     return {
       message: 'User registered successfully',
       user: {
-        _id: newUser['_id'],
+        _id: newUser.id,
         name: newUser.name,
         email: newUser.email,
         phone: newUser.phone,
@@ -77,6 +77,63 @@ export class AuthService {
         role: newUser.role,
         is_active: newUser.is_active,
       },
+    };
+  }
+  async validateGoogleUser(details: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    picture: string;
+    accessToken: string;
+  }) {
+    console.log('Validating Google User:', details.email);
+    try {
+      const user = await this.usersService.findOneByEmail(details.email);
+      if (user) {
+        // User exists, return user
+        console.log('Google user exists:', user.email);
+        return user;
+      }
+    } catch (error) {
+      if (error.status !== 404) {
+        throw error;
+      }
+    }
+
+    // User does not exist, create new user
+    console.log('Creating new Google user:', details.email);
+    const names = details.firstName + ' ' + details.lastName;
+    
+    // Generate a random password since they use Google to login
+    const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+    
+    const newUser = await this.usersService.create({
+      name: names,
+      email: details.email,
+      password: randomPassword,
+      image: details.picture,
+      account_type: 'google',
+      role: 'user',
+      is_active: true,
+      phone: '', // Google doesn't always provide phone
+      address: '',
+    });
+
+    console.log('Created Google user:', newUser.email);
+    return newUser;
+  }
+
+  async loginGoogle(user: any) {
+    const payload = { sub: user.id, username: user.email };
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+      user: {
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        image: user.image,
+        role: user.role,
+      }
     };
   }
 }

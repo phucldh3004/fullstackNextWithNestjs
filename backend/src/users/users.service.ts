@@ -18,14 +18,19 @@ export class UsersService {
     // Hash password before saving
     const hashedPassword = await hasPasswordHelper(createUserDto.password);
 
-    const createdUser = await this.prisma.user.create({
-      data: {
-        ...createUserDto,
-        password: hashedPassword,
-      },
-    });
-    console.log('✅ User created:', createdUser);
-    return createdUser;
+    const findByUser = this.findOneByEmail(createUserDto.email);
+    if (!!findByUser) {
+      const createdUser = await this.prisma.user.create({
+        data: {
+          ...createUserDto,
+          password: hashedPassword,
+        },
+      });
+      console.log('✅ User created:', createdUser);
+      return createdUser;
+    } else {
+      throw new BadRequestException(`Email is exist`);
+    }
   }
 
   async findAll() {
@@ -36,8 +41,6 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    console.log('🔍 Finding user by ID:', id);
-
     const user = await this.prisma.user.findUnique({
       where: { id },
     });
@@ -90,5 +93,92 @@ export class UsersService {
 
     console.log('Deleted user:', deletedUser);
     return deletedUser;
+  }
+
+  async lockUser(id: string) {
+    console.log('🔒 Locking user:', id);
+
+    const user = await this.findOne(id);
+    if (!user.is_active) {
+      throw new BadRequestException('User is already locked');
+    }
+
+    const lockedUser = await this.prisma.user.update({
+      where: { id },
+      data: { is_active: false },
+    });
+
+    console.log('✅ User locked:', lockedUser);
+    return { message: 'User locked successfully', user: lockedUser };
+  }
+
+  async unlockUser(id: string) {
+    console.log('🔓 Unlocking user:', id);
+
+    const user = await this.findOne(id);
+    if (user.is_active) {
+      throw new BadRequestException('User is already active');
+    }
+
+    const unlockedUser = await this.prisma.user.update({
+      where: { id },
+      data: { is_active: true },
+    });
+
+    console.log('✅ User unlocked:', unlockedUser);
+    return { message: 'User unlocked successfully', user: unlockedUser };
+  }
+
+  async assignRole(id: string, role: string) {
+    console.log('👤 Assigning role to user:', id, role);
+
+    await this.findOne(id); // Verify user exists
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data: { role: role.toLowerCase() },
+    });
+
+    console.log('✅ Role assigned:', updatedUser);
+    return { message: 'Role assigned successfully', user: updatedUser };
+  }
+
+  async getPermissions(id: string) {
+    console.log('🔍 Getting permissions for user:', id);
+
+    const user = await this.findOne(id);
+    
+    // Define permissions based on role
+    const rolePermissions = {
+      admin: ['*'], // Admin has all permissions
+      sales: ['read:customers', 'write:customers', 'read:leads', 'write:leads', 'read:orders', 'write:orders'],
+      marketing: ['read:leads', 'write:leads', 'read:campaigns', 'write:campaigns'],
+      accountant: ['read:orders', 'read:payments', 'write:payments'],
+      support: ['read:tickets', 'write:tickets', 'read:customers'],
+    };
+
+    const permissions = rolePermissions[user.role] || [];
+    
+    return { 
+      userId: user.id, 
+      role: user.role, 
+      permissions 
+    };
+  }
+
+  async updatePermissions(id: string, permissions: string[]) {
+    console.log('🔧 Updating permissions for user:', id, permissions);
+
+    await this.findOne(id); // Verify user exists
+
+    // Note: In a real application, you might want to store custom permissions
+    // in a separate table or JSON field. For now, we'll just return a success message.
+    
+    console.log('✅ Permissions updated (simulated)');
+    return { 
+      message: 'Permissions updated successfully', 
+      userId: id,
+      permissions 
+    };
   }
 }

@@ -7,7 +7,7 @@ import { ReactNode } from 'react'
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#2563eb', // blue-600
+      main: '#04a1e4', // blue-600
     },
     secondary: {
       main: '#dc2626', // red-600

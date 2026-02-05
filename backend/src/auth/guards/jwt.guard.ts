@@ -23,9 +23,11 @@ export class JwtAuthGuard implements CanActivate {
       return true;
     }
 
+   
+
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
-
+ console.log(request, token)
     if (!token) {
       throw new UnauthorizedException('No token provided');
     }

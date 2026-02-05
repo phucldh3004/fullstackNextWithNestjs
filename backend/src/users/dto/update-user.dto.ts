@@ -67,3 +67,17 @@ export class UpdateUserDto {
   @IsOptional()
   code_expired?: Date;
 }
+
+export class AssignRoleDto {
+  @IsString()
+  @IsNotEmpty({ message: 'Role is required' })
+  @IsIn(['ADMIN', 'SALES', 'MARKETING', 'ACCOUNTANT', 'SUPPORT'], {
+    message: 'Role must be ADMIN, SALES, MARKETING, ACCOUNTANT, or SUPPORT',
+  })
+  role: string;
+}
+
+export class UpdatePermissionsDto {
+  @IsNotEmpty({ message: 'Permissions array is required' })
+  permissions: string[];
+}

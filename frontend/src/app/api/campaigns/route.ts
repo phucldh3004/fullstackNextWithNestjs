@@ -6,8 +6,8 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
-    const token = cookieStore.get('access_token')?.value
+    const cookies = request.cookies
+    const token = cookies.get('access_token')?.value
 
     if (!token) {
       return NextResponse.json(

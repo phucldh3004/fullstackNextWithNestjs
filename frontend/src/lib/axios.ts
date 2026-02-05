@@ -32,17 +32,11 @@ axiosInstance.interceptors.request.use(
     // Headers are automatically handled by the proxy middleware
     // withCredentials: true ensures cookies are sent with requests
 
-    // Add JWT token from cookies if available (client-side only)
-    if (typeof window !== 'undefined') {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('access_token='))
-        ?.split('=')[1];
+    // Note: Since access_token is HttpOnly, we cannot read it via document.cookie.
+    // The browser will automatically send the cookie if withCredentials is true (or if same-origin).
+    // The proxy middleware will handle appending the Authorization header if needed, 
+    // or the backend should be configured to read the cookie directly.
 
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
 
     return config;
   },

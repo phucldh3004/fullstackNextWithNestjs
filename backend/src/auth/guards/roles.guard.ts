@@ -10,6 +10,7 @@ export enum UserRole {
   ACCOUNTANT = 'ACCOUNTANT',
   SUPPORT = 'SUPPORT',
   CUSTOMER = 'CUSTOMER',
+  USER = 'USER',
 }
 
 export const ROLES_KEY = 'roles';
@@ -39,11 +40,23 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
+    console.log('🛡️ RolesGuard Debug:', {
+      userId: user.id,
+      user: user,
+      requiredRoles,
+    });
+
     // Get user details from database to check role
     try {
+      if (!user.sub) {
+         console.error('🛡️ RolesGuard Error: User ID (sub) is missing in JWT payload. The token might be old or malformed.');
+         return false;
+      }
       const userDetails = await this.usersService.findOne(user.sub);
+   
       return requiredRoles.some((role) => userDetails.role?.toUpperCase().includes(role));
-    } catch {
+    } catch (error) {
+      console.error('🛡️ RolesGuard Error:', error);
       return false;
     }
   }

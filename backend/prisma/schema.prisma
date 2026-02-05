@@ -31,6 +31,11 @@ model User {
   assignedLeads   Lead[]     @relation("AssignedTo")
   createdCampaigns Campaign[] @relation("CreatedBy")
   assignedCustomers Customer[] @relation("AssignedTo")
+  createdOrders   Order[]    @relation("OrderCreatedBy")
+  createdPayments Payment[]  @relation("PaymentCreatedBy")
+  assignedTickets Ticket[]   @relation("TicketAssignedTo")
+  createdTickets  Ticket[]   @relation("TicketCreatedBy")
+  ticketComments  TicketComment[]
 
   @@map("users")
 }
@@ -52,6 +57,9 @@ model Customer {
 
   // Relations
   convertedFromLead Lead? @relation("ConvertedToCustomer")
+  orders          Order[]
+  payments        Payment[]
+  tickets         Ticket[]
 
   @@map("customers")
 }
@@ -102,4 +110,82 @@ model Campaign {
   updatedAt   DateTime @default(now())
 
   @@map("campaigns")
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  orderNumber String   @unique
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  status      String   @default("NEW")
+  totalAmount Float
+  items       Json?
+  notes       String?
+  createdBy   String
+  createdByUser User   @relation("OrderCreatedBy", fields: [createdBy], references: [id])
+  payments    Payment[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("orders")
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  receiptNumber String   @unique
+  amount        Float
+  paymentMethod String   @default("CASH") // CASH, BANK_TRANSFER, ONLINE_PAYMENT
+  status        String   @default("COMPLETED") // PENDING, COMPLETED, FAILED
+  notes         String?
+  
+  orderId       String?
+  order         Order?   @relation(fields: [orderId], references: [id])
+  
+  customerId    String
+  customer      Customer @relation(fields: [customerId], references: [id])
+  
+  createdBy     String
+  createdByUser User     @relation("PaymentCreatedBy", fields: [createdBy], references: [id])
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  @@map("payments")
+}
+
+model Ticket {
+  id            String   @id @default(cuid())
+  ticketNumber  String   @unique
+  title         String
+  description   String
+  priority      String   @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  status        String   @default("NEW") // NEW, IN_PROGRESS, WAITING_RESPONSE, RESOLVED, CLOSED
+  
+  customerId    String?
+  customer      Customer? @relation(fields: [customerId], references: [id])
+  
+  assignedTo    String?
+  assignedToUser User?    @relation("TicketAssignedTo", fields: [assignedTo], references: [id])
+  
+  createdBy     String
+  createdByUser User     @relation("TicketCreatedBy", fields: [createdBy], references: [id])
+  
+  comments      TicketComment[]
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  @@map("tickets")
+}
+
+model TicketComment {
+  id        String   @id @default(cuid())
+  content   String
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@map("ticket_comments")
 }

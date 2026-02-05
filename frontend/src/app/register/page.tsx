@@ -3,8 +3,8 @@
 import { useState, FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-
 import axios from "@/lib/axios"
+import AuthLayout from "@/components/auth/AuthLayout"
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -21,6 +21,7 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [showOptionalFields, setShowOptionalFields] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -53,357 +54,230 @@ export default function RegisterPage() {
       if (formData.address) requestBody.address = formData.address
       if (formData.image) requestBody.image = formData.image
 
-      const response = await axios.post('/auth/register', requestBody)
-
-      if (response.status !== 200) {
+      const response = await axios.post("/auth/register", requestBody)
+      
+      if (response?.data) {
+        setSuccess(true)
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          router.push("/login")
+        }, 2000)
+      } else {
+        setError(response.data.message)
         throw new Error(response.data.message || "Đăng ký thất bại")
       }
-      // Show success message
-      setSuccess(true)
+    } catch (err: unknown) {
+      // Extract error message from response
+      if (err && typeof err === "object" && "response" in err) {
+        const axiosError = err as { response?: { data?: { message?: string } } }
+        if (axiosError.response?.data?.message) {
+          setError(axiosError.response.data.message)
+          return
+        }
+      }
 
-      // Redirect to login after 2 seconds
-      setTimeout(() => {
-        router.push("/login")
-      }, 2000)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Có lỗi xảy ra")
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError("Có lỗi xảy ra")
+      }
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      {/* Register Card */}
-      <div className="w-full max-w-2xl">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          {/* Logo/Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-lg mb-4">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                />
-              </svg>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Đăng ký tài khoản CRM
-            </h1>
-            <p className="text-gray-600">Tạo tài khoản để truy cập hệ thống quản lý khách hàng</p>
-          </div>
+    <AuthLayout>
+        {/* Header */}
+        <div className="text-center mb-8">
+            <h2 className="text-3xl font-light text-stone-900 tracking-tight font-geist uppercase">Join PixelForge</h2>
+            <p className="mt-2 text-sm text-stone-600 font-geist">Start your creative journey today</p>
+        </div>
 
-          {/* Success Message */}
-          {success && (
-            <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg animate-shake">
-              <div className="flex items-center">
-                <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <p className="text-green-700 text-sm font-medium">
-                  Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...
-                </p>
-              </div>
+        {/* Success Message */}
+        {success && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md">
+            <div className="flex items-center">
+            <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <p className="text-green-700 text-sm font-geist">Success! Redirecting to login...</p>
             </div>
-          )}
+        </div>
+        )}
 
-          {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg animate-shake">
-              <div className="flex items-center">
-                <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <p className="text-red-700 text-sm font-medium">{error}</p>
-              </div>
+        {/* Error Message */}
+        {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+            <div className="flex items-center">
+            <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+            <p className="text-red-700 text-sm font-geist">{error}</p>
             </div>
-          )}
+        </div>
+        )}
 
-          {/* Register Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid md:grid-cols-2 gap-5">
-              {/* Name Field */}
-              <div>
-                <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Họ và tên <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    id="name"
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                    placeholder="Nguyễn Văn A"
-                  />
+        {/* Register Form */}
+        <form className="space-y-4" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 gap-4">
+                {/* Name */}
+                <div>
+                    <label className="block text-sm font-medium mb-1 text-stone-700 font-geist uppercase">Full Name</label>
+                    <input 
+                        type="text" 
+                        required 
+                        className="custom-input block w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm font-geist border-stone-300"
+                        placeholder="John Doe"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    />
                 </div>
-              </div>
-
-              {/* Email Field */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Email <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                    placeholder="example@email.com"
-                  />
+                 {/* Email */}
+                 <div>
+                    <label className="block text-sm font-medium mb-1 text-stone-700 font-geist uppercase">Email Address</label>
+                    <input 
+                        type="email" 
+                        required 
+                        className="custom-input block w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm font-geist border-stone-300"
+                        placeholder="you@example.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    />
                 </div>
-              </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-5">
-              {/* Password Field */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Mật khẩu <span className="text-red-500">*</span>
-                </label>
+            <div className="grid grid-cols-1 gap-4">
+                {/* Password */}
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    id="password"
-                    type="password"
-                    required
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                    placeholder="Ít nhất 6 ký tự"
-                  />
+                    <label className="block text-sm font-medium mb-1 text-stone-700 font-geist uppercase">Password</label>
+                    <input 
+                        type={showPassword ? "text" : "password"}
+                        required 
+                        className="custom-input block w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm font-geist border-stone-300"
+                        placeholder="••••••"
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    />
+                     <button 
+                        type="button" 
+                        className="absolute right-2 top-8 text-gray-400" 
+                        onClick={() => setShowPassword(!showPassword)}
+                    >
+                        {showPassword ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye-off"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                        ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        )}
+                    </button>
                 </div>
-              </div>
-
-              {/* Confirm Password Field */}
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-                  Xác nhận mật khẩu <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    required
-                    value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                    placeholder="Nhập lại mật khẩu"
-                  />
+                 {/* Confirm Password */}
+                 <div>
+                    <label className="block text-sm font-medium mb-1 text-stone-700 font-geist uppercase">Confirm</label>
+                    <input 
+                        type="password" 
+                        required 
+                        className="custom-input block w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm font-geist border-stone-300"
+                        placeholder="••••••"
+                        value={formData.confirmPassword}
+                        onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    />
                 </div>
-              </div>
             </div>
 
-            {/* Optional Fields Toggle */}
-            <button
-              type="button"
-              onClick={() => setShowOptionalFields(!showOptionalFields)}
-              className="text-sm text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-2"
+             {/* Optional Fields Toggle */}
+             <button
+                type="button"
+                onClick={() => setShowOptionalFields(!showOptionalFields)}
+                className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold flex items-center gap-1"
             >
-              <svg
-                className={`w-4 h-4 transition-transform ${showOptionalFields ? "rotate-180" : ""}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-              {showOptionalFields ? "Ẩn thông tin tùy chọn" : "Thêm thông tin tùy chọn"}
+                <svg
+                    className={`w-3 h-3 transition-transform ${showOptionalFields ? "rotate-90" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+                {showOptionalFields ? "Hide Optional Details" : "Add Optional Details"}
             </button>
 
             {/* Optional Fields */}
             {showOptionalFields && (
-              <div className="space-y-5 pt-2">
-                {/* Phone Field */}
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Số điện thoại
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                        />
-                      </svg>
+                <div className="space-y-4 pt-2 border-t border-stone-100 animate-fadeIn">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                             <label className="block text-sm font-medium mb-1 text-stone-700 font-geist uppercase">Phone</label>
+                             <input 
+                                type="tel" 
+                                className="custom-input block w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm font-geist border-stone-300"
+                                placeholder="+1 234 567 890"
+                                value={formData.phone}
+                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                             />
+                        </div>
+                         <div>
+                             <label className="block text-sm font-medium mb-1 text-stone-700 font-geist uppercase">Avatar URL</label>
+                             <input 
+                                type="url" 
+                                className="custom-input block w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm font-geist border-stone-300"
+                                placeholder="https://..."
+                                value={formData.image}
+                                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                             />
+                        </div>
                     </div>
-                    <input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                      placeholder="0987654321"
-                    />
-                  </div>
+                     <div>
+                             <label className="block text-sm font-medium mb-1 text-stone-700 font-geist uppercase">Address</label>
+                             <textarea 
+                                rows={2}
+                                className="custom-input block w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 text-sm font-geist border-stone-300 resize-none"
+                                placeholder="123 Creative Street..."
+                                value={formData.address}
+                                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                             />
+                        </div>
                 </div>
-
-                {/* Address Field */}
-                <div>
-                  <label htmlFor="address" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Địa chỉ
-                  </label>
-                  <div className="relative">
-                    <div className="absolute top-3 left-0 pl-4 flex items-start pointer-events-none">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                      </svg>
-                    </div>
-                    <textarea
-                      id="address"
-                      rows={3}
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
-                      placeholder="123 Đường ABC, Quận 1, TP.HCM"
-                    />
-                  </div>
-                </div>
-
-                {/* Image URL Field */}
-                <div>
-                  <label htmlFor="image" className="block text-sm font-semibold text-gray-700 mb-2">
-                    URL ảnh đại diện
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-                    <input
-                      id="image"
-                      type="url"
-                      value={formData.image}
-                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                      placeholder="https://example.com/avatar.jpg"
-                    />
-                  </div>
-                </div>
-              </div>
             )}
 
             {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading || success}
-              className="w-full bg-blue-600 text-white font-medium py-3 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Đang đăng ký...
-                </div>
-              ) : success ? (
-                "Đăng ký thành công!"
-              ) : (
-                "Đăng ký"
-              )}
-            </button>
-          </form>
+            <div className="pt-2">
+                <button 
+                type="submit" 
+                disabled={isLoading || success}
+                className="login-btn group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-300 text-white font-geist disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                    {isLoading ? (
+                    <span className="flex items-center">
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Creating Account...
+                    </span>
+                    ) : success ? (
+                    "Account Created!"
+                    ) : (
+                    <>
+                        <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right w-5 h-5 group-hover:text-indigo-200 transition-colors text-indigo-300"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                        </span>
+                        Create Account
+                    </>
+                    )}
+                </button>
+            </div>
 
-          {/* Sign In Link */}
-          <p className="mt-8 text-center text-sm text-gray-600">
-            Đã có tài khoản?{" "}
-            <Link href="/login" className="font-semibold text-blue-600 hover:text-blue-700 hover:underline">
-              Đăng nhập ngay
-            </Link>
-          </p>
-        </div>
-      </div>
-    </div>
+            {/* Footer */}
+            <div className="text-center mt-6">
+                <p className="text-sm text-stone-600 font-geist">
+                    Already have an account? 
+                    <Link href="/login" className="font-medium hover:text-orange-500 transition-colors text-orange-600 font-geist">
+                         Sign in
+                    </Link>
+                </p>
+            </div>
+        </form>
+    </AuthLayout>
   )
 }
-

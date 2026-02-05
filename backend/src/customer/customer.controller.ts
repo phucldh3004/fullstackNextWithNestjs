@@ -23,13 +23,13 @@ export class CustomerController {
   }
 
   @Get()
-  @Roles(UserRole.ADMIN, UserRole.SALES)
+  @Roles(UserRole.ADMIN, UserRole.SALES, UserRole.USER)
   findAll() {
     return this.customerService.findAll();
   }
 
   @Get(':id')
-  @Roles(UserRole.ADMIN, UserRole.SALES)
+  @Roles(UserRole.ADMIN, UserRole.SALES, UserRole.USER)
   findOne(@Param('id') id: string) {
     return this.customerService.findOne(id);
   }
