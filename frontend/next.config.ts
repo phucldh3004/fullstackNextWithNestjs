@@ -20,13 +20,9 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
     return [
-      // {
-      //   source: "/api/:path*",
-      //   destination: "https://fullstacknextwithnestjs.onrender.com/:path*"
-      // }
       {
         source: "/api/:path*",
-        destination: "http://localhost:3001/:path*"
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/:path*`
       }
     ]
   },
