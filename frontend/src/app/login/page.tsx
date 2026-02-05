@@ -20,21 +20,17 @@ export default function LoginPage() {
       if (event.origin !== window.location.origin) return
       
       if (event.data.type === "GOOGLE_LOGIN_SUCCESS") {
-         // Store token or just redirect (Assuming token is handled by cookie or this is enough for now)
-         // For now, let's just log and redirect. 
-         // In a real app, you might want to exchange this for a session cookie or save it.
          console.log("Google Login Success", event.data.accessToken)
          
-         // Assuming you want to save the token to cookies/localstorage?
-         // Since the previous code uses credentials: "include", maybe cookies are set?
-         // Actually, my backend code sends accessToken in URL only.
-         // Let's manually set a cookie or simply rely on the response.
-         // Wait, the backend redirects with access_token.
-         // Let's just save it to a cookie here for simplicity or assume future requests use it.
-         document.cookie = `access_token=${event.data.accessToken}; path=/; max-age=86400` // Simple cookie set
+         // ✅ Lưu token vào localStorage để check auth
+         localStorage.setItem('access_token', event.data.accessToken)
+         
+         // ✅ Lưu vào cookie để server-side components có thể dùng
+         document.cookie = `access_token=${event.data.accessToken}; path=/; max-age=86400`
          
          const searchParams = new URLSearchParams(window.location.search)
          const redirectTo = searchParams.get("redirect") || "/"
+         console.log(redirectTo,'hihih')
          router.push(redirectTo)
          router.refresh()
       }
