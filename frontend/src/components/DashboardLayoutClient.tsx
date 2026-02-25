@@ -8,8 +8,11 @@ import {
   IconButton,
   Avatar,
   Typography,
+  Fab,
+  Tooltip,
 } from "@mui/material"
-import { Menu as MenuIcon } from "@mui/icons-material"
+import { Menu as MenuIcon, Chat as ChatIcon } from "@mui/icons-material"
+import { useRouter, usePathname } from "next/navigation"
 
 interface DashboardLayoutClientProps {
   children: React.ReactNode
@@ -17,6 +20,8 @@ interface DashboardLayoutClientProps {
 
 export default function DashboardLayoutClient({ children }: DashboardLayoutClientProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
 
   const drawerWidth = 300
 
@@ -100,6 +105,26 @@ export default function DashboardLayoutClient({ children }: DashboardLayoutClien
         <Box sx={{ p: 0 }}>
           {children}
         </Box>
+        
+        {/* Chat Bot Floating Button - hidden on the chat page itself */}
+        {pathname !== '/chat-with-bot' && (
+          <Tooltip title="Chat with Bot" arrow placement="left">
+            <Fab 
+              color="primary" 
+              aria-label="chat"
+              onClick={() => router.push('/chat-with-bot')}
+              sx={{
+                position: 'fixed',
+                bottom: 24,
+                right: 24,
+                zIndex: 1200,
+                boxShadow: 4,
+              }}
+            >
+              <ChatIcon />
+            </Fab>
+          </Tooltip>
+        )}
       </Box>
     </Box>
   )
