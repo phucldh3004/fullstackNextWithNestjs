@@ -80,7 +80,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               <div className="rounded-[40px] overflow-hidden beautiful-shadow bg-white">
                   <div className="grid lg:grid-cols-2 min-h-[700px]">
                       {/* Left Side - Brand/Features */}
-                      <div className="brand-side relative flex flex-col text-white bg-cover p-12 justify-between m-4 rounded-3xl">
+                      <div className="brand-side hidden lg:flex flex-col text-white bg-cover p-8 lg:p-12 justify-between m-3 lg:m-4 rounded-3xl">
                           <div className="relative z-10">
                               {/* Logo */}
                               <div className="flex text-sm mb-12 items-center uppercase">
@@ -88,17 +88,17 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                               </div>
 
                               {/* Hero Text */}
-                              <div className="mb-12">
-                                  <h1 className="text-6xl font-medium tracking-tight font-geist mb-4">
+                              <div className="mb-8 lg:mb-12">
+                                  <h1 className="text-3xl lg:text-6xl font-medium tracking-tight font-geist mb-4">
                                       Customer Relationship Management
                                   </h1>
-                                  <p className="text-xl leading-relaxed text-white/80 font-geist">
+                                  <p className="text-base lg:text-xl leading-relaxed text-white/80 font-geist">
                                       Customer relationship management system, supporting Marketing, Sales, Customer Service, and Finance.
                                   </p>
                               </div>
 
                               {/* Features */}
-                              <div className="space-y-6">
+                              <div className="space-y-4 lg:space-y-6">
                                   <div className="feature-item flex items-center">
                                       <div className="w-8 h-8 backdrop-blur-sm rounded-lg flex items-center justify-center mr-4 bg-white/20">
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-cloud w-4 h-4 text-white"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg>
@@ -140,7 +140,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                       </div>
 
                       {/* Right Side - Form Container */}
-                      <div className="flex flex-col p-12 justify-center">
+                      <div className="flex flex-col p-6 lg:p-12 justify-center">
                           <div className="max-w-md mx-auto w-full">
                               {children}
                           </div>
