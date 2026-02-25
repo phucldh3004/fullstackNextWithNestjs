@@ -84,16 +84,16 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                           <div className="relative z-10">
                               {/* Logo */}
                               <div className="flex text-sm mb-12 items-center uppercase">
-                                  <div className="text-lg font-semibold tracking-tight font-geist">PixelForge Studio</div>
+                                  <div className="text-lg font-semibold tracking-tight font-geist">CRM</div>
                               </div>
 
                               {/* Hero Text */}
                               <div className="mb-12">
                                   <h1 className="text-6xl font-medium tracking-tight font-geist mb-4">
-                                      Create, Design, and Innovate
+                                      Customer Relationship Management
                                   </h1>
                                   <p className="text-xl leading-relaxed text-white/80 font-geist">
-                                      Join thousands of creators who trust PixelForge Studio to bring their vision to life
+                                      Customer relationship management system, supporting Marketing, Sales, Customer Service, and Finance.
                                   </p>
                               </div>
 
