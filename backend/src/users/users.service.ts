@@ -181,4 +181,18 @@ export class UsersService {
       permissions 
     };
   }
+
+  async updatePasswordToken(id: string, token: string | null, expiry: Date | null) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { code_id: token, code_expired: expiry },
+    });
+  }
+
+  async updatePassword(id: string, hashedPassword: string) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { password: hashedPassword, code_id: null, code_expired: null },
+    });
+  }
 }

@@ -5,7 +5,8 @@ import {
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { comparePasswordHelper } from '../helpers/util';
+import { comparePasswordHelper, hasPasswordHelper } from '../helpers/util';
+import * as crypto from 'crypto';
 import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
@@ -135,5 +136,91 @@ export class AuthService {
         role: user.role,
       }
     };
+  }
+
+  async forgotPassword(email: string) {
+    // 1. Check if user exists
+    let user;
+    try {
+      user = await this.usersService.findOneByEmail(email);
+    } catch {
+      throw new BadRequestException('User not found');
+    }
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // 2. Generate random token
+    const token = crypto.randomBytes(32).toString('hex');
+
+    // 3. Hash token for DB storage
+    const hashedToken = await hasPasswordHelper(token);
+
+    // 4. Set expiration (+15 mins)
+    const expiry = new Date(Date.now() + 15 * 60 * 1000);
+
+    // 5. Save to database
+    await this.usersService.updatePasswordToken(user.id, hashedToken, expiry);
+
+    // 6. Return raw token so frontend can email it
+    return { token };
+  }
+
+  async verifyResetToken(email: string, token: string) {
+    let user;
+    try {
+      user = await this.usersService.findOneByEmail(email);
+    } catch {
+      throw new BadRequestException('User not found');
+    }
+
+    if (!user.code_id || !user.code_expired) {
+      throw new BadRequestException('Invalid or missing reset token');
+    }
+
+    if (new Date() > new Date(user.code_expired)) {
+      throw new BadRequestException('Reset token has expired');
+    }
+
+    const isValidToken = await comparePasswordHelper(token, user.code_id);
+    if (!isValidToken) {
+      throw new BadRequestException('Invalid token');
+    }
+
+    return { valid: true };
+  }
+
+  async resetPassword(email: string, token: string, newPassword: string) {
+    // 1. Check if user exists
+    let user;
+    try {
+      user = await this.usersService.findOneByEmail(email);
+    } catch {
+      throw new BadRequestException('User not found');
+    }
+
+    // 2. Check if token exists and hasn't expired
+    if (!user.code_id || !user.code_expired) {
+      throw new BadRequestException('Invalid or missing reset token');
+    }
+
+    if (new Date() > new Date(user.code_expired)) {
+      throw new BadRequestException('Reset token has expired');
+    }
+
+    // 3. Verify token matches hash
+    const isValidToken = await comparePasswordHelper(token, user.code_id);
+    if (!isValidToken) {
+      throw new BadRequestException('Invalid token');
+    }
+
+    // 4. Hash new password
+    const hashedNewPassword = await hasPasswordHelper(newPassword);
+
+    // 5. Update user password and clear tokens
+    await this.usersService.updatePassword(user.id, hashedNewPassword);
+
+    return { message: 'Password reset successfully' };
   }
 }

@@ -1,8 +1,10 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Get, UseGuards, Req, Res } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, Get, UseGuards, Req, Res, Query, BadRequestException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Public } from './decorators/public.decorator';
 
 @Controller('auth')
@@ -25,6 +27,34 @@ export class AuthController {
   register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('forgot-password')
+  @Public()
+  forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto.email);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('reset-password')
+  @Public()
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(
+      resetPasswordDto.email,
+      resetPasswordDto.token,
+      resetPasswordDto.newPassword,
+    );
+  }
+  @HttpCode(HttpStatus.OK)
+  @Get('verify-reset-token')
+  @Public()
+  verifyResetToken(@Query('email') email: string, @Query('token') token: string) {
+    if (!email || !token) {
+      throw new BadRequestException('Email and token are required');
+    }
+    return this.authService.verifyResetToken(email, token);
+  }
+
   @Get('google')
   @Public()
   @UseGuards(AuthGuard('google'))

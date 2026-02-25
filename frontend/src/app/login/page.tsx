@@ -155,9 +155,9 @@ export default function LoginPage() {
                   <label htmlFor="remember-me" className="ml-2 block text-sm text-stone-700 font-geist">Remember me</label>
               </div>
               <div className="text-sm">
-                  <a href="#" className="font-medium hover:text-orange-500 transition-colors text-orange-600 font-geist">
+                  <Link href="/forgot-password" className="font-medium hover:text-orange-500 transition-colors text-orange-600 font-geist">
                       Forgot password?
-                  </a>
+                  </Link>
               </div>
           </div>
 
