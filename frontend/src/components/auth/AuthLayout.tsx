@@ -101,24 +101,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                               <div className="space-y-6">
                                   <div className="feature-item flex items-center">
                                       <div className="w-8 h-8 backdrop-blur-sm rounded-lg flex items-center justify-center mr-4 bg-white/20">
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-palette w-4 h-4 text-white"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"></path><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle></svg>
-                                      </div>
-                                      <div className="">
-                                          <div className="font-semibold font-geist">Advanced Design Tools</div>
-                                          <div className="text-sm text-white/70 font-geist">Professional-grade tools for every project</div>
-                                      </div>
-                                  </div>
-                                  <div className="feature-item flex items-center">
-                                      <div className="w-8 h-8 backdrop-blur-sm rounded-lg flex items-center justify-center mr-4 bg-white/20">
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users w-4 h-4 text-white"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>
-                                      </div>
-                                      <div className="">
-                                          <div className="font-semibold font-geist">Team Collaboration</div>
-                                          <div className="text-sm text-white/70 font-geist">Work together seamlessly in real-time</div>
-                                      </div>
-                                  </div>
-                                  <div className="feature-item flex items-center">
-                                      <div className="w-8 h-8 backdrop-blur-sm rounded-lg flex items-center justify-center mr-4 bg-white/20">
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-cloud w-4 h-4 text-white"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg>
                                       </div>
                                       <div>
@@ -131,8 +113,26 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shield-check w-4 h-4 text-white"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>
                                       </div>
                                       <div>
-                                          <div className="font-semibold font-geist">Enterprise Security</div>
-                                          <div className="text-sm text-white/70 font-geist">Bank-level security for your data</div>
+                                          <div className="font-semibold font-geist">Database</div>
+                                          <div className="text-sm text-white/70 font-geist">Using service <b className="font-bold">Supbase</b> with <b className="font-bold">Postgres database</b></div>
+                                      </div>
+                                  </div>
+                                   <div className="feature-item flex items-center">
+                                      <div className="w-8 h-8 backdrop-blur-sm rounded-lg flex items-center justify-center mr-4 bg-white/20">
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users w-4 h-4 text-white"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><path d="M16 3.128a4 4 0 0 1 0 7.744"></path><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                                      </div>
+                                      <div className="">
+                                          <div className="font-semibold font-geist">Backend Nestjs</div>
+                                          <div className="text-sm text-white/70 font-geist">Using <b className="font-bold">Render</b> deployment</div>
+                                      </div>
+                                  </div>
+                                   <div className="feature-item flex items-center">
+                                      <div className="w-8 h-8 backdrop-blur-sm rounded-lg flex items-center justify-center mr-4 bg-white/20">
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-palette w-4 h-4 text-white"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"></path><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle></svg>
+                                      </div>
+                                      <div className="">
+                                          <div className="font-semibold font-geist">Frontend Nextjs</div>
+                                          <div className="text-sm text-white/70 font-geist">Using <b className="font-bold">Vercel</b> deployment</div>
                                       </div>
                                   </div>
                               </div>
