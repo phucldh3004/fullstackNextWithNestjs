@@ -34,11 +34,18 @@ export default function NewCustomerPage() {
     setIsLoading(true)
 
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const response = await fetch('/api/customers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
 
-      // Here you would make actual API call to create customer
-      console.log("Creating customer:", formData)
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create customer')
+      }
 
       // Redirect to customers list
       router.push("/dashboard/customers")
@@ -131,12 +138,12 @@ export default function NewCustomerPage() {
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="INDIVIDUAL">Cá nhân</option>
-                  <option value="COMPANY">Doanh nghiệp</option>
+                  <option value="BUSINESS">Doanh nghiệp</option>
                 </select>
               </div>
 
               {/* Company */}
-              {formData.customerType === "COMPANY" && (
+              {formData.customerType === "BUSINESS" && (
                 <div className="md:col-span-2">
                   <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
                     Tên công ty

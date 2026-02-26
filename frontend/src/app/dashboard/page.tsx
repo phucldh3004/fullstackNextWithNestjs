@@ -14,7 +14,10 @@ import {
   ListItemText,
   ListItemAvatar,
   Avatar,
-  Divider
+  Divider,
+  Grid,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material"
 import { People as PeopleIcon, Flag as FlagIcon, Campaign as CampaignIcon } from "@mui/icons-material"
 import { BarChart } from "@mui/x-charts/BarChart"
@@ -37,16 +40,46 @@ interface DashboardStats {
   }
 }
 
+const statCards = (stats: DashboardStats) => [
+  {
+    label: "Khách hàng",
+    value: stats.totalCustomers,
+    icon: <PeopleIcon />,
+    color: "primary.main",
+  },
+  {
+    label: "Leads",
+    value: stats.totalLeads,
+    icon: <FlagIcon />,
+    color: "success.main",
+  },
+  {
+    label: "Chiến dịch",
+    value: stats.totalCampaigns,
+    icon: <CampaignIcon />,
+    color: "secondary.main",
+  },
+  {
+    label: "Người dùng",
+    value: stats.totalUsers,
+    icon: <PeopleIcon />,
+    color: "warning.main",
+  },
+]
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+  const isMd = useMediaQuery(theme.breakpoints.down("md"))
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         const response = await fetch("/api/dashboard")
-        
+
         // Check if redirected (which happens when no token)
         if (response.redirected && response.url.includes("/login")) {
           router.push("/login")
@@ -85,10 +118,19 @@ export default function DashboardPage() {
     return null
   }
 
+  const chartHeight = isMobile ? 220 : 300
+  const barChartWidth = isMobile ? undefined : undefined // let it be responsive via container
+
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Box mb={4}>
-        <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
+    <Container maxWidth="xl" sx={{ py: { xs: 2, sm: 3, md: 4 }, px: { xs: 1.5, sm: 2, md: 3 } }}>
+      {/* Page Header */}
+      <Box mb={{ xs: 2, sm: 3, md: 4 }}>
+        <Typography
+          variant={isMobile ? "h4" : "h3"}
+          component="h1"
+          gutterBottom
+          fontWeight="bold"
+        >
           Dashboard
         </Typography>
         <Typography variant="subtitle1" color="text.secondary">
@@ -97,136 +139,157 @@ export default function DashboardPage() {
       </Box>
 
       {/* Stats Cards */}
-      <Box display="flex" flexWrap="wrap" gap={3} mb={4}>
-        <Card sx={{ flex: "1 1 250px", minWidth: "200px" }}>
-          <CardContent>
-            <Box display="flex" alignItems="center">
-              <Avatar sx={{ bgcolor: "primary.main", mr: 2 }}>
-                <PeopleIcon />
-              </Avatar>
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Khách hàng
-                </Typography>
-                <Typography variant="h5" fontWeight="bold">
-                  {stats?.totalCustomers.toLocaleString()}
-                </Typography>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
-
-        <Card sx={{ flex: "1 1 250px", minWidth: "200px" }}>
-          <CardContent>
-            <Box display="flex" alignItems="center">
-              <Avatar sx={{ bgcolor: "success.main", mr: 2 }}>
-                <FlagIcon />
-              </Avatar>
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Leads
-                </Typography>
-                <Typography variant="h5" fontWeight="bold">
-                  {stats?.totalLeads.toLocaleString()}
-                </Typography>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
-
-        <Card sx={{ flex: "1 1 250px", minWidth: "200px" }}>
-          <CardContent>
-            <Box display="flex" alignItems="center">
-              <Avatar sx={{ bgcolor: "secondary.main", mr: 2 }}>
-                <CampaignIcon />
-              </Avatar>
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Chiến dịch
-                </Typography>
-                <Typography variant="h5" fontWeight="bold">
-                  {stats?.totalCampaigns.toLocaleString()}
-                </Typography>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
-
-        <Card sx={{ flex: "1 1 250px", minWidth: "200px" }}>
-          <CardContent>
-            <Box display="flex" alignItems="center">
-              <Avatar sx={{ bgcolor: "warning.main", mr: 2 }}>
-                <PeopleIcon />
-              </Avatar>
-              <Box>
-                <Typography variant="body2" color="text.secondary">
-                  Người dùng
-                </Typography>
-                <Typography variant="h5" fontWeight="bold">
-                  {stats?.totalUsers.toLocaleString()}
-                </Typography>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
+      <Grid container spacing={{ xs: 1.5, sm: 2, md: 3 }} mb={{ xs: 2, sm: 3, md: 4 }}>
+        {statCards(stats).map((card) => (
+          <Grid item xs={6} sm={6} md={3} key={card.label}>
+            <Card sx={{ height: "100%" }}>
+              <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+                <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: card.color,
+                      width: { xs: 36, sm: 40 },
+                      height: { xs: 36, sm: 40 },
+                    }}
+                  >
+                    {card.icon}
+                  </Avatar>
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      fontSize={{ xs: "0.7rem", sm: "0.875rem" }}
+                    >
+                      {card.label}
+                    </Typography>
+                    <Typography
+                      variant={isMobile ? "h6" : "h5"}
+                      fontWeight="bold"
+                    >
+                      {card.value.toLocaleString()}
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
 
       {/* Charts */}
-      <Box display="flex" flexWrap="wrap" gap={3} mb={4}>
-        <Card sx={{ flex: "2 1 500px", minWidth: "400px" }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Thống kê theo tháng
-            </Typography>
-            <BarChart
-              height={300}
-              series={[
-                { data: stats.chartData.monthlyData.map((d) => d.customers), label: "Khách hàng", color: "#04a1e4" },
-                { data: stats.chartData.monthlyData.map((d) => d.leads), label: "Leads", color: "#16a34a" },
-                { data: stats.chartData.monthlyData.map((d) => d.campaigns), label: "Chiến dịch", color: "#dc2626" }
-              ]}
-              xAxis={[{ data: stats.chartData.monthlyData.map((d) => d.month), scaleType: "band" }]}
-            />
-          </CardContent>
-        </Card>
+      <Grid container spacing={{ xs: 1.5, sm: 2, md: 3 }} mb={{ xs: 2, sm: 3, md: 4 }}>
+        {/* Bar Chart */}
+        <Grid item xs={12} md={8}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent sx={{ p: { xs: 1.5, sm: 2 }, overflow: "hidden" }}>
+              <Typography variant="h6" gutterBottom fontSize={{ xs: "1rem", sm: "1.25rem" }}>
+                Thống kê theo tháng
+              </Typography>
+              <Box sx={{ width: "100%", overflowX: "auto" }}>
+                <BarChart
+                  height={chartHeight}
+                  series={[
+                    {
+                      data: stats.chartData.monthlyData.map((d) => d.customers),
+                      label: "Khách hàng",
+                      color: "#04a1e4",
+                    },
+                    {
+                      data: stats.chartData.monthlyData.map((d) => d.leads),
+                      label: "Leads",
+                      color: "#16a34a",
+                    },
+                    {
+                      data: stats.chartData.monthlyData.map((d) => d.campaigns),
+                      label: "Chiến dịch",
+                      color: "#dc2626",
+                    },
+                  ]}
+                  xAxis={[
+                    {
+                      data: stats.chartData.monthlyData.map((d) => d.month),
+                      scaleType: "band",
+                    },
+                  ]}
+                />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
 
-        <Card sx={{ flex: "1 1 300px", minWidth: "250px" }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Trạng thái Leads
-            </Typography>
-            <PieChart
-              series={[
-                {
-                  data: stats.chartData.leadStatusData,
-                  innerRadius: 30,
-                  outerRadius: 100
-                }
-              ]}
-              height={300}
-            />
-          </CardContent>
-        </Card>
-      </Box>
+        {/* Pie Chart */}
+        <Grid item xs={12} md={4}>
+          <Card sx={{ height: "100%" }}>
+            <CardContent sx={{ p: { xs: 1.5, sm: 2 }, overflow: "hidden" }}>
+              <Typography variant="h6" gutterBottom fontSize={{ xs: "1rem", sm: "1.25rem" }}>
+                Trạng thái Leads
+              </Typography>
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  overflowX: "auto",
+                }}
+              >
+                <PieChart
+                  series={[
+                    {
+                      data: stats.chartData.leadStatusData,
+                      innerRadius: isMobile ? 20 : 30,
+                      outerRadius: isMobile ? 70 : 100,
+                    },
+                  ]}
+                  height={chartHeight}
+                  width={isMobile ? 280 : undefined}
+                />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* Recent Activities */}
       <Card>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
+        <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+          <Typography variant="h6" gutterBottom fontSize={{ xs: "1rem", sm: "1.25rem" }}>
             Hoạt động gần đây
           </Typography>
-          <List>
+          <List disablePadding>
             {stats.recentActivities.map((activity, index) => (
               <div key={activity.id}>
-                <ListItem>
+                <ListItem
+                  sx={{
+                    px: { xs: 0, sm: 2 },
+                    alignItems: "flex-start",
+                  }}
+                >
                   <ListItemAvatar>
-                    <Avatar sx={{ bgcolor: "primary.main" }}>
-                      {activity.type === "customer" && <PeopleIcon />}
-                      {activity.type === "lead" && <FlagIcon />}
-                      {activity.type === "campaign" && <CampaignIcon />}
+                    <Avatar
+                      sx={{
+                        bgcolor: "primary.main",
+                        width: { xs: 32, sm: 40 },
+                        height: { xs: 32, sm: 40 },
+                        mt: { xs: 0.5, sm: 0 },
+                      }}
+                    >
+                      {activity.type === "customer" && <PeopleIcon fontSize={isMobile ? "small" : "medium"} />}
+                      {activity.type === "lead" && <FlagIcon fontSize={isMobile ? "small" : "medium"} />}
+                      {activity.type === "campaign" && <CampaignIcon fontSize={isMobile ? "small" : "medium"} />}
                     </Avatar>
                   </ListItemAvatar>
-                  <ListItemText primary={activity.description} secondary={activity.timestamp} />
+                  <ListItemText
+                    primary={
+                      <Typography variant="body2" fontWeight={500} fontSize={{ xs: "0.8rem", sm: "0.875rem" }}>
+                        {activity.description}
+                      </Typography>
+                    }
+                    secondary={
+                      <Typography variant="caption" color="text.secondary" fontSize={{ xs: "0.7rem", sm: "0.75rem" }}>
+                        {activity.timestamp}
+                      </Typography>
+                    }
+                  />
                 </ListItem>
                 {index < stats.recentActivities.length - 1 && <Divider variant="inset" />}
               </div>
@@ -237,4 +300,3 @@ export default function DashboardPage() {
     </Container>
   )
 }
-

@@ -35,7 +35,7 @@ export default function DashboardLayoutClient({ children }: DashboardLayoutClien
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
+          keepMounted: true,
         }}
         sx={{
           display: { xs: 'block', lg: 'none' },
@@ -64,6 +64,9 @@ export default function DashboardLayoutClient({ children }: DashboardLayoutClien
           flexGrow: 1,
           width: { lg: `calc(100% - ${drawerWidth}px)` },
           ml: { lg: `${drawerWidth}px` },
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: '100vh',
         }}
       >
         {/* Mobile header */}
@@ -72,13 +75,15 @@ export default function DashboardLayoutClient({ children }: DashboardLayoutClien
             display: { xs: 'flex', lg: 'none' },
             alignItems: 'center',
             justifyContent: 'space-between',
-            p: 2,
+            px: 1.5,
+            py: 1,
             bgcolor: 'background.paper',
             borderBottom: 1,
             borderColor: 'divider',
             position: 'sticky',
             top: 0,
             zIndex: 1100,
+            boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
           }}
         >
           <IconButton
@@ -86,37 +91,45 @@ export default function DashboardLayoutClient({ children }: DashboardLayoutClien
             aria-label="open drawer"
             edge="start"
             onClick={() => setSidebarOpen(true)}
-            sx={{ mr: 2 }}
           >
             <MenuIcon />
           </IconButton>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Avatar sx={{ bgcolor: 'primary.main', width: 32, height: 32 }}>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Avatar sx={{ bgcolor: 'primary.main', width: 30, height: 30, fontSize: '0.875rem' }}>
               C
             </Avatar>
-            <Typography variant="h6" fontWeight="bold">
+            <Typography variant="subtitle1" fontWeight="bold">
               CRM System
             </Typography>
           </Box>
-          <Box sx={{ width: 40 }} /> {/* Spacer */}
+
+          {/* Spacer to balance the hamburger icon */}
+          <Box sx={{ width: 40 }} />
         </Box>
 
         {/* Page content */}
-        <Box sx={{ p: 0 }}>
+        <Box
+          sx={{
+            flexGrow: 1,
+            pb: pathname !== '/chat-with-bot' ? { xs: 10, lg: 0 } : 0,
+          }}
+        >
           {children}
         </Box>
-        
-        {/* Chat Bot Floating Button - hidden on the chat page itself */}
+
+        {/* Chat Bot Floating Button */}
         {pathname !== '/chat-with-bot' && (
           <Tooltip title="Chat with Bot" arrow placement="left">
-            <Fab 
-              color="primary" 
+            <Fab
+              color="primary"
               aria-label="chat"
               onClick={() => router.push('/chat-with-bot')}
+              size="medium"
               sx={{
                 position: 'fixed',
-                bottom: 24,
-                right: 24,
+                bottom: { xs: 16, sm: 24 },
+                right: { xs: 16, sm: 24 },
                 zIndex: 1200,
                 boxShadow: 4,
               }}

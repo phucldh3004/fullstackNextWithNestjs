@@ -48,8 +48,6 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-
-    console.log('User found:', user);
     return user;
   }
 

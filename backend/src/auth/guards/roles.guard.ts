@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { UsersService } from '../../users/users.service';
 import { SetMetadata } from '@nestjs/common';
@@ -37,27 +37,28 @@ export class RolesGuard implements CanActivate {
     const user = request['user'];
 
     if (!user) {
-      return false;
+      throw new ForbiddenException('bạn không có quyền này');
     }
-
-    console.log('🛡️ RolesGuard Debug:', {
-      userId: user.id,
-      user: user,
-      requiredRoles,
-    });
 
     // Get user details from database to check role
     try {
       if (!user.sub) {
          console.error('🛡️ RolesGuard Error: User ID (sub) is missing in JWT payload. The token might be old or malformed.');
-         return false;
+         throw new ForbiddenException('Bạn không có quyền này');
       }
       const userDetails = await this.usersService.findOne(user.sub);
    
-      return requiredRoles.some((role) => userDetails.role?.toUpperCase().includes(role));
+      const hasRole = requiredRoles.some((role) => userDetails.role?.toUpperCase().includes(role));
+      if (!hasRole) {
+        throw new ForbiddenException('Bạn không có quyền này');
+      }
+      return true;
     } catch (error) {
+      if (error instanceof ForbiddenException) {
+        throw error;
+      }
       console.error('🛡️ RolesGuard Error:', error);
-      return false;
+      throw new ForbiddenException('bạn không có quyền này');
     }
   }
 }

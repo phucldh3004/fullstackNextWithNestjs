@@ -14,8 +14,6 @@ export async function POST(request: NextRequest) {
       password
     })
 
-    console.log(response,'hihihi')
-
     const { access_token } = response.data
 
     // Set access_token in HTTP-only cookie (secure)

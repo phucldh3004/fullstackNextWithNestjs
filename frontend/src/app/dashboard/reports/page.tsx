@@ -37,11 +37,13 @@ interface ReportData {
 }
 
 export default function ReportsPage() {
+  const [isMounted, setIsMounted] = useState(false)
   const [reportData, setReportData] = useState<ReportData | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedPeriod, setSelectedPeriod] = useState("THIS_MONTH")
 
   useEffect(() => {
+    setIsMounted(true)
     // Mock data for now
     const mockData: ReportData = {
       customerReport: {
@@ -87,6 +89,10 @@ export default function ReportsPage() {
       setLoading(false)
     }, 1000)
   }, [])
+
+  if (!isMounted) {
+    return null
+  }
 
   if (loading) {
     return (

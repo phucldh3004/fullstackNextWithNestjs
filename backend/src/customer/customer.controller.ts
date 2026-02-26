@@ -19,6 +19,7 @@ export class CustomerController {
   @Post()
   @Roles(UserRole.ADMIN, UserRole.SALES)
   create(@Body() createCustomerDto: CreateCustomerDto) {
+    console.log('hihihihi')
     return this.customerService.create(createCustomerDto);
   }
 
